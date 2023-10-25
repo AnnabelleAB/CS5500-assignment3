@@ -1,0 +1,31 @@
+const messages = [
+  { username: "Alice", content: "Hello, everyone!" },
+  { username: "Bob", content: "Hi, Alice! How's it going?" },
+  { username: "Charlie", content: "I'm doing well, thanks. How about you, Bob?" },
+  { username: "David", content: "I'm good too. Any exciting news, Alice?" },
+  { username: "Eve", content: "Hey, everyone! What's the topic today?" },
+  { username: "Frank", content: "We're just getting started, Eve. Join in!" },
+  { username: "Grace", content: "I see you're discussing something interesting." },
+  { username: "Hannah", content: "Yes, Grace! We're talking about technology trends." },
+  { username: "Isaac", content: "Sounds fascinating. Any predictions?" },
+  { username: "Jane", content: "Well, AI and IoT are expected to dominate." },
+  { username: "Kevin", content: "AI is indeed a game-changer!" },
+  { username: "Lily", content: "I agree, Kevin. It's transforming industries." },
+  { username: "Michael", content: "IoT is making our lives more connected." },
+  { username: "Nancy", content: "Absolutely, Michael. Smart homes are on the rise." },
+  { username: "Oliver", content: "I'm a fan of smart devices!" },
+  { username: "Penny", content: "They do make life more convenient." },
+  { username: "Quinn", content: "Any concerns about privacy, though?" },
+  { username: "Rachel", content: "Privacy is a hot topic with IoT." },
+  { username: "Sam", content: "We need to ensure data security." },
+  { username: "Tina", content: "That's a valid point, Sam." },
+  { username: "Ulysses", content: "Data breaches are a real threat." },
+  { username: "Victoria", content: "We should stay vigilant." },
+  { username: "William", content: "Indeed, security is paramount." },
+  { username: "Xander", content: "Great discussion, everyone!" },
+  { username: "Yara", content: "I'm loving this chat. Thanks for sharing, Xander." },
+  { username: "Zoe", content: "Agreed, Yara. It's been enlightening." },
+
+]
+
+module.exports = messages
