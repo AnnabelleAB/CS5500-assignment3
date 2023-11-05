@@ -1,158 +1,52 @@
-### Welcome to your job at ACME Software
+It is time to strike out on your own and make your spread sheet more collaborative.  Sharing is great---but we have recently learned that it also comes along with concurrency, which sometimes gives us more to think about...  For example, multiple people editing the same cell requires some kind of "locking".  Bilbo Buggins left us some code that almost worked, but not quite!
 
-<img align="right" src="./media/acme.jpeg" width="400px" alt="picture"> 
+In our meeting with PatLinks to an external site., one of the topics that we heard several times from your groups was that we would like to have a chat feature in our spreadsheet.  That might be a great way to start with collaboration!
 
-Welcome to ACME software.  We are happy to have you on board here at our start up.  
+## The Requirements
+1. Each document should have a chat window in the spreadsheet editor page.
+2. Each participant will see a entry pane that they can enter text into.
+3. The server maintains the ordered list of chat items (to keep it simple!).
+4. Each Chat item looks like this
+ - user:  message
+5. The client displays the latest 20 items. 
+6. (Advanced topic). The client window provides a method for requesting more chat items and then they are added to the chat window (again, to keep it simple!). 
+ - This means your chat server calls should provide a paged fetch method for the messages (details to follow in class!).
+This description of the task is typical of the kind of request you might get as a team in industry.   You are expected to own the design and implementation of the whole feature.  For this assignment, we have asked you to design the feature up front and get approval for the plan prior to your execution.  Basically you need to execute a discovery phase, then you will do an implementation step, which will give you a good workout in an agile experience. 
 
-#### Onboarding
+*Discovery* is the stage where you study the requirements and you determine
 
-Your first assignment (should you choose to accept it) is to pick up a project that Bilbo Buggins was working on when they left the company.   They said they had some sort of important quest or something.  
+- The user requirements (break down the request into user stories)
+- The testing requirements, how will you know your user story has been satisfied.
+- The sign off from the client that these user stories are sufficient
+Implementation is when you write the code to implement all of the above.
 
-Anyhow.  What was Bilbo Buggins working on?
+## Your deliverables are as follows
+1. You must provide a high level design document that details how you are going to solve it and what work is being done by each team member.  This is due on nov 6 (This should 3.3.overview the architecture of your new system in relationship to the existing system).
+2. You provide a list of the user storiesLinks to an external site. that you are going to implement.  Nov 6.
+3. You must provide a testing document.  In this document you will detail how you have tested your system, in particular each user story should have a set of tests defined (end2end, integration, unit) as you see fit so that you are confident you have a working system.  This is due on November 6.
+4. You must deploy your server to a RenderLinks to an external site. server.  It is recommended that you get your system up on render early.   We will test on November 20.
 
-### The demonstratable Spreadsheet.
+## Rubric: 
+https://northeastern.instructure.com/courses/162613/assignments/2042483
 
-We are building a spreadsheet that will be used by teachers in primary school and early high school to explain how a spreadhsheet works with a simple interface.   This will be the focus of your employment here at ACME Software.
+## But What about the Bugs?!?
 
-#### The problem we have.
+As we are working with the calc-sheet, we are finding more things we would like to update/fix.  For example, in addition to the locking mentioned above, teams have reported the following concerns:
 
-Bilbo was well on their way to getting the work done however they ended up with some code that kinda works.
+- User closes tab while editing cell
+- User changes username while editing cell
+- Overly long usernames or formulas overflow cell
+- Newlines are allowed in user names
+- Certain symbols in usernames can allow text to escape onto the page
+and you will find more!!!
 
+Make sure your team is keeping track of these kinds of issues in a project backlog.  Write up three of these bugs (and/or others you find!) in a user story format:
 
-Bilbo did a couple of things on their way out.  They deleted the core calculator in `FormulaEvaluator.ts`  
+- As a user i expect <state behaviour> 
+- Issue with system based on the stated user story
+- Repo steps:  How do i repo the issue.  (What are the steps that i need to do to reproduce this issue)
+For example: 
+  - There was a bug that is now fixed where a user could edit a cell that did not belong to them.
+Repo step: To reproduce the C bug (which is now fixed) you go to a cell that you are not editing and you click on C
 
-They were also required to provide a message when the user was not logged in to the main page.  
-
-They did do us a favour left us the unit tests for `FormulaEvaluator.ts` You can find these unit tests in `FormulaEvaluator.test.ts`.  But we are not completely sure that they did not add something there to confuse the people who are replacing them!  They didn't leave any official bug reports, and there doesn't appear to be history in the repository. 
-
-### Learning outcomes.
-The intention of this assignment is to start you in the world of working in existing code.  Typically when you join a team in a company you are starting to work with existing code.  The first task that most engineers are given is usually to fix a bug.  In this assignment we are having you fix a bug in the existing prototype.   The bug that you are fixing is that there is no indication given to the user when there is no user name in the input element on the page.  It sure would be nice to actually have a but report to work with, but there isn't one.  Before you fix this bug, create what you think a good bug report would look like for this issue.
-
-
-The second task that most engineers get is to get up to speed on existing code.   We have fabricated the scenario here to provide you with the experience of having to understand a system, how the system is built, and how the system is deployed.   The calculator that you have inherited will return a number for each calculation (Bilbo had set this up to test the whole system.  When you are making changes to this existing system, do it through pull requests, so that you start to create a systematic communication mechanism with other people who are working on this code base!
-
-The Third task that most engineers experience is to do a code review.  With this in mind we would like you to do a code review of one of the team mates in your team.   You should update the CodeReview.md file that is included in this repository.
-
-### How the current version works 
-short description here and demo in class.
-
-
-
-<table>
-    <theader>
-        <tr>
-            <th>
-            Item
-            </th>
-            <th>
-            Requirements
-            </th>
-            <th>
-            Rewards
-            </th>
-        </tr>
-    </theader>
-<tr>
-    <td>
-    Implement Calculation engine
-    </td>
-    <td>
-    Implement the calculation engine so that the basic calculator works (it passes the unit testsunit test pass. <br /> Also look out to see if there is a bad unit test
-    </td>
-    <td>
-    30
-    </td>
-</tr>
-<tr>
-    <td>
-    Implement login warning
-    </td>
-    <td>
-    If the user attempts to interact with the spreadsheet without entering a name they should get a pop up message
-    </td>
-    <td>
-    10
-    </td>
-</tr>
-<tr>
-    <td>
-    Code Review
-    </td>
-    <td>
-    You have reviewed the code of one of your team mates and have included your report in `CodeReview.md`
-    </td>
-    <td>
-    10
-    </td>
-</tr>
-
-</table>
-
-### Implementation strategy
-1. Crate the bug report and implement the missing login functionality
-1. Implement the calculator functionality first.  Get that working, and practice putting together meaningful pull requests for these changes. 
-1. Do the code review with your team mates, in particular if one of your team mates is struggling do a code review.<br/>
-     - If you are struggling, ask for a code review.
-1. Do the code review at any point (its better if you do it when the code is not finished)
-
-At the end of this  assignment you should be able to have separate tabs on your browser with different users using the same spread sheet.  Be ready to go over all of this work with your TA in your weekly standup!
-
-
-### How do you run this thing.
-
-The version of the spreadsheet that you have runs as two processes.   There is a backend server that does the calculation and there is a front end server that renders the spreadsheet and sends request for updates to the backend server.
-
-In order to start the backend server you can do run the DocumentServer.ts by issuing the command 
-
-```bash
-npm run start-server
-```
-
-at that poinn you should see some thing that looks like this run in that terminal.
-
-```bash
-~/C/s/calc-sheet ❯ npm run start-server
-Debugger attached.
-
-> calc-sheet@0.1.0 start-server
-> ts-node ./src/Server/DocumentServer.ts
-
-Debugger attached.
-test.json
-test1.json
-test2.json
-test32.json
-test5.json
-test999.json
-testd.json
-xxxtestDocument1.json
-xxxtestDocument2.json
-xxxtestDocument3.json
-listening on port 3005
-```
-
-Then in a second terminal you can run the command 
-
-```bash
-npm run start
-
-```
-
-This should start your frontend server and will start a tab in your current browser.  In that terminal you will see
-```bash
-Compiled successfully!
-
-You can now view calc-sheet in the browser.
-
-  Local:            http://localhost:3000
-  On Your Network:  http://10.18.195.99:3000
-
-Note that the development build is not optimized.
-To create a production build, use npm run build.
-
-webpack compiled successfully
-Files successfully emitted, waiting for typecheck results...
-Issues checking in progress...
-No issues found.
-    
-```
+In your final submission you will pick one bug (not the C bug) and fix it. Please provide a list of the tests you implemented/did to verify your fix is working.
