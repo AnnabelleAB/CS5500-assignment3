@@ -175,6 +175,11 @@ export class SheetMemory {
     }
 
 
+    saveCurrentState() {
+        console.log('saveCurrentState called'); // Debugging log
+        const sheetData = this.sheetToJSON();
+        localStorage.setItem('sheetState', sheetData);
+    }
 
 
     /**
