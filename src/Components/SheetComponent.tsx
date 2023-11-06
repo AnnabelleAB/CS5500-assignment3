@@ -3,7 +3,7 @@ import React from "react";
 import Cell from "../Engine/Cell";
 
 import "./SheetComponent.css";
-
+import SheetMemory from "../Engine/SheetMemory";
 // a component that will render a two dimensional array of cells
 // the cells will be rendered in a table
 // the cells will be rendered in rows
@@ -14,12 +14,20 @@ interface SheetComponentProps {
   onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
   currentCell: string;
   currentlyEditing: boolean;
-} // interface SheetComponentProps
+  sheetMemory: SheetMemory;
+}
 
 
 
 
-function SheetComponent({ cellsValues, onClick, currentCell, currentlyEditing }: SheetComponentProps) {
+
+function SheetComponent({ cellsValues, onClick, currentCell, currentlyEditing, sheetMemory }: SheetComponentProps) {
+  window.addEventListener('beforeunload', (event) => {
+    // Prompt the user to save changes
+    event.preventDefault();
+    sheetMemory.saveCurrentState();
+    event.returnValue = 'You have unsaved changes! Are you sure you want to leave?';
+  });
 
   /**
    * 

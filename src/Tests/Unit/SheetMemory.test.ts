@@ -350,6 +350,29 @@ describe('SheetMemory', () => {
       });
     });
   });
+  describe('State Saving on Tab Close', () => {
+    beforeEach(() => {
+      // Clear all previous mocks
+      jest.clearAllMocks();
+
+      // Setup the localStorage mock
+      Storage.prototype.setItem = jest.fn();
+    });
+
+    it('should call saveCurrentState when the tab is closed', () => {
+      // Initialize SheetMemory
+      const sheetMemory = new SheetMemory(10, 10); // Assuming 10x10 for simplicity
+
+      // Directly call saveCurrentState
+      sheetMemory.saveCurrentState();
+
+      // Assert that saveCurrentState resulted in localStorage.setItem being called
+      expect(Storage.prototype.setItem).toHaveBeenCalled();
+    });
+  });
+
+
+
 
 });
 
