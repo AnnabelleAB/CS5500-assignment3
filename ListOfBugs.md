@@ -18,7 +18,7 @@ Repo step: To reproduce the C bug (which is now fixed) you go to a cell that you
 
 # Bug Reports
 
-## 1. User closes tab while editing cell
+## 1. User closes tab while editing cell (FIXED in this [PR](https://github.com/AnnabelleAB/CS5500-assignment3/pull/4))
 
 ### User Story:
 As a user, I expect my edits to be saved or at least be prompted to save them when I accidentally close the tab.
