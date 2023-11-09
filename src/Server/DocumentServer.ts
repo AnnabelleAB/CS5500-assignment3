@@ -31,6 +31,9 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import { DocumentHolder } from '../Engine/DocumentHolder';
 import { PortsGlobal } from '../ServerDataDefinitions';
+import { initializeApp, applicationDefault, cert } from 'firebase-admin/app';
+import { getFirestore, Timestamp, FieldValue, Filter } from 'firebase-admin/firestore';
+
 
 // define a debug flag to turn on debugging
 let debug = true;
@@ -59,8 +62,16 @@ app.use((req, res, next) => {
     next();
 });
 
+//Add firestore database
 
 
+const serviceAccount = require('../serviceAccountKey.json');
+
+initializeApp({
+  credential: cert(serviceAccount)
+});
+
+const db = getFirestore();
 
 const documentHolder = new DocumentHolder();
 
@@ -265,6 +276,21 @@ app.put('/document/clear/formula/:name', (req: express.Request, res: express.Res
     const resultJSON = documentHolder.clearFormula(name, userName);
 
     res.status(200).send(resultJSON);
+});
+
+
+
+//Message api 
+app.post('/messages', (req: express.Request, res: express.Response) => {
+    const docRef = db.collection('messages').doc('message1');
+    docRef.set({
+        content: 'something random',
+        timestamp: Date.now(),
+        user: "test user"
+    }).then(result => {
+        res.status(200).send(result);
+    })
+    
 });
 
 // get the port we should be using
