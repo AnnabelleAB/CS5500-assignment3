@@ -10,6 +10,7 @@
 
 import { DocumentTransport, CellTransport, CellTransportMap, ErrorMessages, UserEditing } from '../Engine/GlobalDefinitions';
 import { Cell } from '../Engine/Cell';
+import { Message } from '../Engine/Message';
 
 import { PortsGlobal, LOCAL_SERVER_URL, RENDER_SERVER_URL } from '../ServerDataDefinitions';
 
@@ -399,6 +400,19 @@ class SpreadSheetClient {
                 this._updateDocumentList(documents);
             });
 
+    }
+
+
+    public addMessage(user: string, content: string): void{
+        const fetchURL = `${this._baseURL}/messages`;
+        fetch(fetchURL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ "userName": user, "content": content})
+        })
+        .then();
     }
 
     public getErrorOccurred(): string {

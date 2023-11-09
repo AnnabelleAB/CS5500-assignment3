@@ -33,6 +33,7 @@ import { DocumentHolder } from '../Engine/DocumentHolder';
 import { PortsGlobal } from '../ServerDataDefinitions';
 import { initializeApp, applicationDefault, cert } from 'firebase-admin/app';
 import { getFirestore, Timestamp, FieldValue, Filter } from 'firebase-admin/firestore';
+import { Message } from '../Engine/Message';
 
 
 // define a debug flag to turn on debugging
@@ -282,16 +283,45 @@ app.put('/document/clear/formula/:name', (req: express.Request, res: express.Res
 
 //Message api 
 app.post('/messages', (req: express.Request, res: express.Response) => {
-    const docRef = db.collection('messages').doc('message1');
-    docRef.set({
-        content: 'something random',
+
+    const userName = req.body.userName;
+    if (!userName) {
+        res.status(400).send('userName is required');
+        return;
+    }
+
+    const content = req.body.content;
+    if (!content) {
+        res.status(400).send('content is required');
+        return;
+    }
+
+    db.collection('messages').add({
+        content: content,
         timestamp: Date.now(),
-        user: "test user"
+        user: userName
     }).then(result => {
         res.status(200).send(result);
     })
     
 });
+
+
+app.get('/messages', (req: express.Request, res: express.Response) => { 
+    const query = db.collection('messages').orderBy('timestamp', 'desc');
+
+    let messages: Message[] = [];
+    query.get().then(snapshot => {
+        snapshot.forEach(doc => {
+            // console.log(doc.id, '=>', doc.data());
+            let message = new Message(doc.data().user, doc.data().content, doc.data().timestamp);
+            messages.push(message);
+        })
+        res.status(200).send(JSON.stringify(messages));
+    });
+
+});
+
 
 // get the port we should be using
 const port = PortsGlobal.serverPort;

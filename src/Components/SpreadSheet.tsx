@@ -31,6 +31,7 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
   const [currentlyEditing, setCurrentlyEditing] = useState(spreadSheetClient.getEditStatus());
   const [userName, setUserName] = useState(window.sessionStorage.getItem('userName') || "");
   const [serverSelected, setServerSelected] = useState("localhost");
+  const [message, setMessage] = useState("");
 
 
   function updateDisplayValues(): void {
@@ -46,7 +47,6 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
     if (errorOccurred !== "") {
       alert(errorOccurred)
     }
-
   }
 
   // useEffect to refetch the data every 1/20 of a second
@@ -54,7 +54,9 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
     const interval = setInterval(() => {
       updateDisplayValues();
     }, 50);
-    return () => clearInterval(interval);
+    return () => 
+      clearInterval(interval);
+
   });
 
   function returnToLoginPage() {
@@ -151,6 +153,14 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
     spreadSheetClient.setServerSelector(buttonName);
   }
 
+  function sendMessage(event: React.MouseEvent<HTMLButtonElement>): void {
+    spreadSheetClient.addMessage(userName, message);
+  }
+
+  function onMessageChange(event: React.FormEvent<HTMLInputElement>): void { 
+    setMessage(event.currentTarget.value);
+  }
+
 
   /**
    * 
@@ -200,6 +210,13 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
       <KeyPad onButtonClick={onButtonClick}
         onCommandButtonClick={onCommandButtonClick}
         currentlyEditing={currentlyEditing}></KeyPad>
+      <div>
+        <input placeholder="Please enter message" onChange={onMessageChange}>
+        </input>
+        <button onClick = {sendMessage}>
+          Send
+        </button>
+      </div>
       <ServerSelector serverSelector={serverSelector} serverSelected={serverSelected} />
     </div>
   )
