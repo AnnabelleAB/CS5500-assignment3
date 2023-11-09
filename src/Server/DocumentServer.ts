@@ -32,7 +32,7 @@ import cors from 'cors';
 import { DocumentHolder } from '../Engine/DocumentHolder';
 import { PortsGlobal } from '../ServerDataDefinitions';
 import { initializeApp, applicationDefault, cert } from 'firebase-admin/app';
-import { getFirestore, Timestamp, FieldValue, Filter } from 'firebase-admin/firestore';
+import { getFirestore, Timestamp, FieldValue, Filter, QuerySnapshot } from 'firebase-admin/firestore';
 
 
 // define a debug flag to turn on debugging
@@ -68,7 +68,7 @@ app.use((req, res, next) => {
 const serviceAccount = require('../serviceAccountKey.json');
 
 initializeApp({
-  credential: cert(serviceAccount)
+    credential: cert(serviceAccount)
 });
 
 const db = getFirestore();
@@ -281,17 +281,37 @@ app.put('/document/clear/formula/:name', (req: express.Request, res: express.Res
 
 
 //Message api 
-app.post('/messages', (req: express.Request, res: express.Response) => {
-    const docRef = db.collection('messages').doc('message1');
-    docRef.set({
-        content: 'something random',
-        timestamp: Date.now(),
-        user: "test user"
-    }).then(result => {
-        res.status(200).send(result);
-    })
-    
+app.get('/messages', async (req: express.Request, res: express.Response) => {
+    try {
+        const messagesRef = db.collection('messages').orderBy('timestamp', 'asc');
+        const snapshot = await messagesRef.get();
+        const messages = snapshot.docs.map(doc => doc.data());
+        res.status(200).send(messages);
+    } catch (error) {
+        console.error('Error retrieving messages:', error);
+        res.status(500).send('Error retrieving messages');
+    }
 });
+
+app.post('/messages', async (req: express.Request, res: express.Response) => {
+    const { user, content, timestamp } = req.body;
+    if (!user || !content || !timestamp) {
+        return res.status(400).send('Missing user, content, or timestamp');
+    }
+
+    try {
+        const docRef = await db.collection('messages').add({
+            user,
+            content,
+            timestamp: Timestamp.fromMillis(timestamp)
+        });
+        res.status(201).send({ id: docRef.id });
+    } catch (error) {
+        console.error('Error adding message:', error);
+        res.status(500).send('Error adding message');
+    }
+});
+
 
 // get the port we should be using
 const port = PortsGlobal.serverPort;

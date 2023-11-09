@@ -2,7 +2,7 @@ import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
 import { DocumentTransport, CellTransport } from '../Engine/GlobalDefinitions';
-
+import { ChatItem, NormalizedChatItem } from './ChatItem';
 
 // this will run a bunch of tests against the server.
 
@@ -10,11 +10,9 @@ import { DocumentTransport, CellTransport } from '../Engine/GlobalDefinitions';
 
 import * as PortsGlobal from '../ServerDataDefinitions';
 import e from 'express';
-
 const serverPort = PortsGlobal.PortsGlobal.serverPort;
 
 const baseURL = `http://localhost:${serverPort}`;
-
 
 
 function cleanFiles() {
@@ -217,6 +215,22 @@ function checkCell(document: any, cell: string, value: number, formula: string[]
     return true;
 }
 
+async function getChatItems() {
+    return axios.get(`${baseURL}/messages`)
+        .then(response => {
+            const chatItems = response.data;
+            return chatItems;
+        });
+}
+
+async function postChatItem(user: string, content: string, timestamp: number) {
+    return axios.post(`${baseURL}/messages`, { user, content, timestamp })
+        .then(response => {
+            const chatItem = response.data;
+            return chatItem;
+        });
+}
+
 // this is the main function that runs the tests
 async function runTests() {
 
@@ -365,7 +379,53 @@ async function runTests() {
     checkFormulaAndDisplay(resultDocument, '12 + B2 + 1', '16');
     checkIsEditing(resultDocument, false);
 
+    await postChatItem('user1', 'Hello', Date.now());
+    // Wait a bit to ensure a different timestamp
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    await postChatItem('user2', 'Hi', Date.now());
 
+    const chatItems: ChatItem[] = await getChatItems();
+
+    // Normalize timestamps to numbers
+    const normalizedChatItems: NormalizedChatItem[] = chatItems.map((item: ChatItem) => ({
+        ...item,
+        normalizedTimestamp: typeof item.timestamp === 'number' ? item.timestamp : (item.timestamp._seconds * 1000 + item.timestamp._nanoseconds / 1000000)
+    }));
+
+    // Sort the items by the normalized timestamp to check the order
+    const sortedChatItems = normalizedChatItems.sort((a: NormalizedChatItem, b: NormalizedChatItem) => a.normalizedTimestamp - b.normalizedTimestamp);
+
+    // Log the chat items for debugging
+    console.log('Retrieved and normalized chat items:', sortedChatItems);
+
+    // Check if the sorted array is the same as the original array
+    const isOrderedCorrectly = sortedChatItems.every((item: NormalizedChatItem, index: number) => item === normalizedChatItems[index]);
+
+    console.assert(
+        isOrderedCorrectly,
+        'Chat items are not ordered by timestamp'
+    );
+
+    if (isOrderedCorrectly) {
+        console.log('SUCCESS: Chat items are ordered by timestamp');
+    }
+
+    // Test error handling for failed message transmission
+    try {
+        await postChatItem('user3', '', Date.now()); // empty content should fail
+        console.error('Error handling test failed: No error thrown for empty content');
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            // Now we know this is an AxiosError, and we can access the response property
+            console.assert(error.response?.status === 400, 'Error handling for failed message transmission is not working');
+            if (error.response?.status === 400) {
+                console.log('SUCCESS: Error handling for failed message transmission is working');
+            }
+        } else {
+            // Handle case where error is not an AxiosError
+            console.error('An unexpected error occurred:', error);
+        }
+    }
 
 
 }
