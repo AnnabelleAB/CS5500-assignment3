@@ -223,8 +223,8 @@ async function getChatItems() {
         });
 }
 
-async function postChatItem(user: string, content: string, timestamp: number) {
-    return axios.post(`${baseURL}/messages`, { user, content, timestamp })
+async function postChatItem(user: string, content: string) {
+    return axios.post(`${baseURL}/messages`, { user, content })
         .then(response => {
             const chatItem = response.data;
             return chatItem;
@@ -379,10 +379,10 @@ async function runTests() {
     checkFormulaAndDisplay(resultDocument, '12 + B2 + 1', '16');
     checkIsEditing(resultDocument, false);
 
-    await postChatItem('user1', 'Hello', Date.now());
+    await postChatItem('user1', 'Hello');
     // Wait a bit to ensure a different timestamp
     await new Promise(resolve => setTimeout(resolve, 1000));
-    await postChatItem('user2', 'Hi', Date.now());
+    await postChatItem('user2', 'Hi');
 
     const chatItems: ChatItem[] = await getChatItems();
 
@@ -412,7 +412,7 @@ async function runTests() {
 
     // Test error handling for failed message transmission
     try {
-        await postChatItem('user3', '', Date.now()); // empty content should fail
+        await postChatItem('user3', ''); // empty content should fail
         console.error('Error handling test failed: No error thrown for empty content');
     } catch (error) {
         if (axios.isAxiosError(error)) {

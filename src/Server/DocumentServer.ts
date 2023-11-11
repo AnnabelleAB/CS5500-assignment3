@@ -281,31 +281,44 @@ app.put('/document/clear/formula/:name', (req: express.Request, res: express.Res
 
 
 //Message api 
-app.get('/messages', async (req: express.Request, res: express.Response) => {
+app.get('/messages', (req: express.Request, res: express.Response) => {
     try {
         const messagesRef = db.collection('messages').orderBy('timestamp', 'asc');
-        const snapshot = await messagesRef.get();
-        const messages = snapshot.docs.map(doc => doc.data());
-        res.status(200).send(messages);
+        let messages;
+        messagesRef.get().then(snapshot => {
+            messages = snapshot.docs.map(doc => doc.data());
+            res.status(200).send(messages);
+        });
     } catch (error) {
         console.error('Error retrieving messages:', error);
         res.status(500).send('Error retrieving messages');
     }
 });
 
-app.post('/messages', async (req: express.Request, res: express.Response) => {
-    const { user, content, timestamp } = req.body;
-    if (!user || !content || !timestamp) {
-        return res.status(400).send('Missing user, content, or timestamp');
+app.post('/messages', (req: express.Request, res: express.Response) => {
+    const userName = req.body.userName;
+    if (!userName) {
+        res.status(400).send('userName is required for a message');
+        return;
+    }
+
+    const content = req.body.content;
+    if (!content) {
+        res.status(400).send('content is required for a message');
+        return;
     }
 
     try {
-        const docRef = await db.collection('messages').add({
-            user,
+        db.collection('messages').add({
+            userName,
             content,
-            timestamp: Timestamp.fromMillis(timestamp)
-        });
-        res.status(201).send({ id: docRef.id });
+            timestamp: Date.now()
+        }).then(
+            result => {
+                res.status(200).send(result.id);
+            }
+        )
+    
     } catch (error) {
         console.error('Error adding message:', error);
         res.status(500).send('Error adding message');
