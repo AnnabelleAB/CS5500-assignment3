@@ -69,6 +69,7 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
     }).then((chatItems: ChatItem[]) => setMessages(chatItems));
     }, 1000);
     return () => clearInterval(messageInterval);
+    
   },[]);
 
   function returnToLoginPage() {
@@ -210,6 +211,7 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
   }
 
   return (
+    <>
     <div>
       <Status statusString={statusString} userName={userName}></Status>
       <button onClick={returnToLoginPage}>Return to Login Page</button>
@@ -231,6 +233,7 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
       </div>
       <ServerSelector serverSelector={serverSelector} serverSelected={serverSelected} />
     </div>
+    </>
   )
 };
 
