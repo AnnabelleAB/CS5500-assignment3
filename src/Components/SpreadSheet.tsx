@@ -4,6 +4,8 @@ import Status from "./Status";
 import KeyPad from "./KeyPad";
 import SpreadSheetClient from "../Engine/SpreadSheetClient";
 import SheetHolder from "./SheetHolder";
+import MessageList from "./MessageList";
+import { ChatItem } from "../Server/ChatItem";
 
 import { ButtonNames } from "../Engine/GlobalDefinitions";
 import ServerSelector from "./ServerSelector";
@@ -32,6 +34,7 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
   const [userName, setUserName] = useState(window.sessionStorage.getItem('userName') || "");
   const [serverSelected, setServerSelected] = useState("localhost");
   const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState([] as ChatItem[]);
 
 
   function updateDisplayValues(): void {
@@ -57,6 +60,16 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
     }, 50);
     return () => clearInterval(interval);
   });
+
+  useEffect(() => {
+    const messageInterval = setInterval(() => {
+      const fetchURL = "http://localhost:3005/messages";
+      fetch(fetchURL).then(response => {
+        return response.json() as Promise<ChatItem[]>;
+    }).then((chatItems: ChatItem[]) => setMessages(chatItems));
+    }, 1000);
+    return () => clearInterval(messageInterval);
+  },[]);
 
   function returnToLoginPage() {
 
@@ -208,6 +221,7 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
       <KeyPad onButtonClick={onButtonClick}
         onCommandButtonClick={onCommandButtonClick}
         currentlyEditing={currentlyEditing}></KeyPad>
+      <MessageList messages={messages} />
       <div>
         <input placeholder="Please enter message" onChange={onMessageChange}>
         </input>

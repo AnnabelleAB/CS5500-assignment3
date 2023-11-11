@@ -14,7 +14,6 @@ import { Cell } from '../Engine/Cell';
 import { PortsGlobal, LOCAL_SERVER_URL, RENDER_SERVER_URL } from '../ServerDataDefinitions';
 
 
-
 class SpreadSheetClient {
 
     // get the environment variable SERVER_LOCAL 
@@ -418,7 +417,7 @@ class SpreadSheetClient {
             body: JSON.stringify({ "userName": user, "content": content})
         })
         .then(response => {
-           console.log(response.statusText);
+           console.log(response.status);
         });
     }
 
