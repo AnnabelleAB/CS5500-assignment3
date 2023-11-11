@@ -282,17 +282,18 @@ app.put('/document/clear/formula/:name', (req: express.Request, res: express.Res
 
 //Message api 
 app.get('/messages', (req: express.Request, res: express.Response) => {
-    try {
-        const messagesRef = db.collection('messages').orderBy('timestamp', 'asc');
-        let messages;
-        messagesRef.get().then(snapshot => {
+
+    const messagesRef = db.collection('messages').orderBy('timestamp', 'asc');
+    let messages;
+    messagesRef.get()
+        .then(snapshot => {
             messages = snapshot.docs.map(doc => doc.data());
             res.status(200).send(messages);
-        });
-    } catch (error) {
-        console.error('Error retrieving messages:', error);
-        res.status(500).send('Error retrieving messages');
-    }
+        }).catch((error) => {
+            console.error('Error retrieving messages:', error);
+            res.status(500).send('Error retrieving messages');
+        })
+    
 });
 
 app.post('/messages', (req: express.Request, res: express.Response) => {
@@ -308,21 +309,18 @@ app.post('/messages', (req: express.Request, res: express.Response) => {
         return;
     }
 
-    try {
-        db.collection('messages').add({
-            userName,
-            content,
-            timestamp: Date.now()
-        }).then(
-            result => {
-                res.status(200).send(result.id);
-            }
-        )
-    
-    } catch (error) {
+    db.collection('messages').add({
+        content: content,
+        user: userName,
+        timestamp: Date.now()
+    }).then(
+        result => {
+            res.status(200).send(result.id);
+        }
+    ).catch((error) => {
         console.error('Error adding message:', error);
         res.status(500).send('Error adding message');
-    }
+        })
 });
 
 

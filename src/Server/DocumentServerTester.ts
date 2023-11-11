@@ -223,8 +223,8 @@ async function getChatItems() {
         });
 }
 
-async function postChatItem(user: string, content: string) {
-    return axios.post(`${baseURL}/messages`, { user, content })
+async function postChatItem(userName: string, content: string) {
+    return axios.post(`${baseURL}/messages`, { userName, content })
         .then(response => {
             const chatItem = response.data;
             return chatItem;
@@ -379,44 +379,54 @@ async function runTests() {
     checkFormulaAndDisplay(resultDocument, '12 + B2 + 1', '16');
     checkIsEditing(resultDocument, false);
 
-    await postChatItem('user1', 'Hello');
-    // Wait a bit to ensure a different timestamp
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    await postChatItem('user2', 'Hi');
-
-    const chatItems: ChatItem[] = await getChatItems();
-
-    // Normalize timestamps to numbers
-    const normalizedChatItems: NormalizedChatItem[] = chatItems.map((item: ChatItem) => ({
-        ...item,
-        normalizedTimestamp: typeof item.timestamp === 'number' ? item.timestamp : (item.timestamp._seconds * 1000 + item.timestamp._nanoseconds / 1000000)
-    }));
-
-    // Sort the items by the normalized timestamp to check the order
-    const sortedChatItems = normalizedChatItems.sort((a: NormalizedChatItem, b: NormalizedChatItem) => a.normalizedTimestamp - b.normalizedTimestamp);
-
-    // Log the chat items for debugging
-    console.log('Retrieved and normalized chat items:', sortedChatItems);
-
-    // Check if the sorted array is the same as the original array
-    const isOrderedCorrectly = sortedChatItems.every((item: NormalizedChatItem, index: number) => item === normalizedChatItems[index]);
-
-    console.assert(
-        isOrderedCorrectly,
-        'Chat items are not ordered by timestamp'
-    );
-
-    if (isOrderedCorrectly) {
-        console.log('SUCCESS: Chat items are ordered by timestamp');
+    
+    try {
+        await postChatItem('user1test', 'Hello');
+            // Wait a bit to ensure a different timestamp
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        await postChatItem('user2test', 'Hi');
+    } catch (error) {
+        console.error('An unexpected error occurred:'+ error);
     }
+   
 
-    // Test error handling for failed message transmission
+    try {
+        const chatItems: ChatItem[] = await getChatItems();
+            // Normalize timestamps to numbers
+        const normalizedChatItems: NormalizedChatItem[] = chatItems.map((item: ChatItem) => ({
+            ...item,
+            normalizedTimestamp: typeof item.timestamp === 'number' ? item.timestamp : (item.timestamp._seconds * 1000 + item.timestamp._nanoseconds / 1000000)
+        }));
+
+        // Sort the items by the normalized timestamp to check the order
+        const sortedChatItems = normalizedChatItems.sort((a: NormalizedChatItem, b: NormalizedChatItem) => a.normalizedTimestamp - b.normalizedTimestamp);
+
+        // Log the chat items for debugging
+        console.log('Retrieved and normalized chat items:', sortedChatItems);
+
+        // Check if the sorted array is the same as the original array
+        const isOrderedCorrectly = sortedChatItems.every((item: NormalizedChatItem, index: number) => item === normalizedChatItems[index]);
+
+        console.assert(
+            isOrderedCorrectly,
+            'Chat items are not ordered by timestamp'
+        );
+
+        if (isOrderedCorrectly) {
+            console.log('SUCCESS: Chat items are ordered by timestamp');
+        }
+    } catch(error) {
+        console.error('An unexpected error occurred:'+ error);
+    }
+   
+
+    //Test error handling for failed message transmission
     try {
         await postChatItem('user3', ''); // empty content should fail
         console.error('Error handling test failed: No error thrown for empty content');
     } catch (error) {
         if (axios.isAxiosError(error)) {
-            // Now we know this is an AxiosError, and we can access the response property
+        //     // Now we know this is an AxiosError, and we can access the response property
             console.assert(error.response?.status === 400, 'Error handling for failed message transmission is not working');
             if (error.response?.status === 400) {
                 console.log('SUCCESS: Error handling for failed message transmission is working');
@@ -426,7 +436,6 @@ async function runTests() {
             console.error('An unexpected error occurred:', error);
         }
     }
-
 
 }
 

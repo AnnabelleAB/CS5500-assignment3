@@ -408,6 +408,21 @@ class SpreadSheetClient {
         return this._document.errorOccurred;
     }
 
+    public addMessage(user: string, content: string): void{
+        const fetchURL = `${this._baseURL}/messages`;
+        fetch(fetchURL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ "userName": user, "content": content})
+        })
+        .then(response => {
+           console.log(response.statusText);
+        });
+    }
+
+
     private _getEditorString(contributingUsers: UserEditing[], cellLabel: string): string {
         for (let user of contributingUsers) {
             if (user.cell === cellLabel) {

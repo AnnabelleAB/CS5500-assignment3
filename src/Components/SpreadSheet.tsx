@@ -31,6 +31,7 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
   const [currentlyEditing, setCurrentlyEditing] = useState(spreadSheetClient.getEditStatus());
   const [userName, setUserName] = useState(window.sessionStorage.getItem('userName') || "");
   const [serverSelected, setServerSelected] = useState("localhost");
+  const [message, setMessage] = useState("");
 
 
   function updateDisplayValues(): void {
@@ -71,6 +72,14 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
     window.history.pushState({}, '', newURL);
     window.location.reload();
 
+  }
+
+  function sendMessage(event: React.MouseEvent<HTMLButtonElement>): void {
+    spreadSheetClient.addMessage(userName, message);
+  }
+
+  function onMessageChange(event: React.FormEvent<HTMLInputElement>): void { 
+    setMessage(event.currentTarget.value);
   }
 
   function checkUserName(): boolean {
@@ -192,7 +201,6 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
       <Status statusString={statusString} userName={userName}></Status>
       <button onClick={returnToLoginPage}>Return to Login Page</button>
       <Formula formulaString={formulaString} resultString={resultString}  ></Formula>
-
       {<SheetHolder cellsValues={cells}
         onClick={onCellClick}
         currentCell={currentCell}
@@ -200,6 +208,13 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
       <KeyPad onButtonClick={onButtonClick}
         onCommandButtonClick={onCommandButtonClick}
         currentlyEditing={currentlyEditing}></KeyPad>
+      <div>
+        <input placeholder="Please enter message" onChange={onMessageChange}>
+        </input>
+        <button onClick = {sendMessage}>
+          Send
+        </button>
+      </div>
       <ServerSelector serverSelector={serverSelector} serverSelected={serverSelected} />
     </div>
   )
