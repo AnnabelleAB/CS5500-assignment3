@@ -4,6 +4,8 @@ import Status from "./Status";
 import KeyPad from "./KeyPad";
 import SpreadSheetClient from "../Engine/SpreadSheetClient";
 import SheetHolder from "./SheetHolder";
+import MessageList from "./MessageList";
+import { ChatItem } from "../Server/ChatItem";
 
 import { ButtonNames } from "../Engine/GlobalDefinitions";
 import ServerSelector from "./ServerSelector";
@@ -31,6 +33,8 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
   const [currentlyEditing, setCurrentlyEditing] = useState(spreadSheetClient.getEditStatus());
   const [userName, setUserName] = useState(window.sessionStorage.getItem('userName') || "");
   const [serverSelected, setServerSelected] = useState("localhost");
+  const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState([] as ChatItem[]);
 
 
   function updateDisplayValues(): void {
@@ -57,6 +61,16 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
     return () => clearInterval(interval);
   });
 
+  useEffect(() => {
+    const messageInterval = setInterval(() => {
+      const fetchURL = "http://localhost:3005/messages";
+      fetch(fetchURL).then(response => {
+        return response.json() as Promise<ChatItem[]>;
+    }).then((chatItems: ChatItem[]) => setMessages(chatItems));
+    }, 1000);
+    return () => clearInterval(messageInterval);
+  },[]);
+
   function returnToLoginPage() {
 
     // set the document name
@@ -71,6 +85,14 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
     window.history.pushState({}, '', newURL);
     window.location.reload();
 
+  }
+
+  function sendMessage(event: React.MouseEvent<HTMLButtonElement>): void {
+    spreadSheetClient.addMessage(userName, message);
+  }
+
+  function onMessageChange(event: React.FormEvent<HTMLInputElement>): void { 
+    setMessage(event.currentTarget.value);
   }
 
   function checkUserName(): boolean {
@@ -192,7 +214,6 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
       <Status statusString={statusString} userName={userName}></Status>
       <button onClick={returnToLoginPage}>Return to Login Page</button>
       <Formula formulaString={formulaString} resultString={resultString}  ></Formula>
-
       {<SheetHolder cellsValues={cells}
         onClick={onCellClick}
         currentCell={currentCell}
@@ -200,6 +221,14 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
       <KeyPad onButtonClick={onButtonClick}
         onCommandButtonClick={onCommandButtonClick}
         currentlyEditing={currentlyEditing}></KeyPad>
+      <MessageList messages={messages} />
+      <div>
+        <input placeholder="Please enter message" onChange={onMessageChange}>
+        </input>
+        <button onClick = {sendMessage}>
+          Send
+        </button>
+      </div>
       <ServerSelector serverSelector={serverSelector} serverSelected={serverSelected} />
     </div>
   )

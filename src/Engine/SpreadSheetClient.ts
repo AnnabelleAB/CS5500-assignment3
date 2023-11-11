@@ -14,7 +14,6 @@ import { Cell } from '../Engine/Cell';
 import { PortsGlobal, LOCAL_SERVER_URL, RENDER_SERVER_URL } from '../ServerDataDefinitions';
 
 
-
 class SpreadSheetClient {
 
     // get the environment variable SERVER_LOCAL 
@@ -407,6 +406,21 @@ class SpreadSheetClient {
         }
         return this._document.errorOccurred;
     }
+
+    public addMessage(user: string, content: string): void{
+        const fetchURL = `${this._baseURL}/messages`;
+        fetch(fetchURL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ "userName": user, "content": content})
+        })
+        .then(response => {
+           console.log(response.status);
+        });
+    }
+
 
     private _getEditorString(contributingUsers: UserEditing[], cellLabel: string): string {
         for (let user of contributingUsers) {
