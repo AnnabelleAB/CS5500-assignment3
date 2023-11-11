@@ -88,12 +88,15 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
 
   }
 
+
   function sendMessage(event: React.MouseEvent<HTMLButtonElement>): void {
     spreadSheetClient.addMessage(userName, message);
+    setMessage("");
   }
 
   function onMessageChange(event: React.FormEvent<HTMLInputElement>): void { 
     setMessage(event.currentTarget.value);
+
   }
 
   function checkUserName(): boolean {
@@ -225,7 +228,7 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
         currentlyEditing={currentlyEditing}></KeyPad>
       <MessageList messages={messages} />
       <div>
-        <input placeholder="Please enter message" onChange={onMessageChange}>
+        <input placeholder="Type a message..." value={message} onChange={onMessageChange}>
         </input>
         <button onClick = {sendMessage}>
           Send
