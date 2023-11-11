@@ -280,10 +280,10 @@ app.put('/document/clear/formula/:name', (req: express.Request, res: express.Res
 
 
 
-//Message api 
+//20 Message api 
 app.get('/messages', (req: express.Request, res: express.Response) => {
 
-    const messagesRef = db.collection('messages').orderBy('timestamp', 'asc');
+    const messagesRef = db.collection('messages').orderBy('timestamp', 'desc').limit(20);
     let messages;
     messagesRef.get()
         .then(snapshot => {
