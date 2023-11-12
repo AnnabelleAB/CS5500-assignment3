@@ -35,6 +35,8 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
   const [serverSelected, setServerSelected] = useState("localhost");
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([] as ChatItem[]);
+  const [currentPage, setCurrentPage] = useState(2);
+  const [historyMessages, setHistoryMessages] = useState([] as ChatItem[]);
 
 
   function updateDisplayValues(): void {
@@ -66,11 +68,12 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
       const fetchURL = "http://localhost:3005/messages";
       fetch(fetchURL).then(response => {
         return response.json() as Promise<ChatItem[]>;
-    }).then((chatItems: ChatItem[]) => setMessages(chatItems));
-    }, 1000);
+      }).then((chatItems: ChatItem[]) => {
+        setMessages(prevMessages => processMessages(chatItems, historyMessages));
+      });
+    }, 5000);
     return () => clearInterval(messageInterval);
-    
-  },[]);
+  }, []);
 
   function returnToLoginPage() {
 
@@ -97,6 +100,60 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
   function onMessageChange(event: React.FormEvent<HTMLInputElement>): void { 
     setMessage(event.currentTarget.value);
 
+  }
+
+  /**
+   * Processes an array of new and existing chat messages by combining them,
+   * sorting them based on their timestamp, and removing duplicates.
+   * 
+   * @param {ChatItem[]} newMessages - The array of new messages to be added.
+   * @param {ChatItem[]} existingMessages - The current array of messages.
+   * @returns {ChatItem[]} A sorted and unique array of combined messages.
+   */
+  const processMessages = (newMessages: ChatItem[], existingMessages: ChatItem[]): ChatItem[] => {
+    const combinedMessages = [...newMessages, ...existingMessages];
+
+    combinedMessages.sort((a, b) => {
+      // Extract timestamps as numbers
+      const timestampA = typeof a.timestamp === 'number' ? a.timestamp : (a.timestamp._seconds * 1000 + a.timestamp._nanoseconds / 1000000);
+      const timestampB = typeof b.timestamp === 'number' ? b.timestamp : (b.timestamp._seconds * 1000 + b.timestamp._nanoseconds / 1000000);
+
+      return timestampB - timestampA;
+    });
+
+    return uniqueMessages(combinedMessages);
+  };
+
+  /**
+   * Deduplicates an array of chat messages based on a combination of timestamp, user, and content.
+   * 
+   * @param {ChatItem[]} messages - The array of messages to deduplicate.
+   * @returns {ChatItem[]} An array of unique messages.
+   */
+  const uniqueMessages = (messages: ChatItem[]): ChatItem[] => {
+    const unique = new Map();
+    for (const msg of messages) {
+      const identifier = `${msg.timestamp}-${msg.user}-${msg.content}`;
+      if (!unique.has(identifier)) {
+        unique.set(identifier, msg);
+      }
+    }
+    return Array.from(unique.values());
+  };
+
+  /**
+   * Loads more chat messages from the server based on the current page state.
+   * It then processes the new messages with the existing history messages to
+   * maintain a unique and sorted list of chat messages. If successful, it increments
+   * the current page count to prepare for the next invocation.
+   */
+  function loadMoreMessages() {
+    spreadSheetClient.getMessageByPage(currentPage)
+      .then(moreMessages => {
+        setHistoryMessages(prevHistory => processMessages(moreMessages, prevHistory));
+        setCurrentPage(prevPage => prevPage + 1);
+      })
+      .catch(error => console.error("Error loading more messages:", error));
   }
 
   function checkUserName(): boolean {
@@ -232,6 +289,9 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
         </input>
         <button onClick = {sendMessage}>
           Send
+        </button>
+        <button onClick={loadMoreMessages}>
+          Load More
         </button>
       </div>
       <ServerSelector serverSelector={serverSelector} serverSelected={serverSelected} />
