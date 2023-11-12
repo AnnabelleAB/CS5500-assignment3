@@ -12,6 +12,7 @@ import { DocumentTransport, CellTransport, CellTransportMap, ErrorMessages, User
 import { Cell } from '../Engine/Cell';
 
 import { PortsGlobal, LOCAL_SERVER_URL, RENDER_SERVER_URL } from '../ServerDataDefinitions';
+import { ChatItem } from "../Server/ChatItem";
 
 
 class SpreadSheetClient {
@@ -421,6 +422,24 @@ class SpreadSheetClient {
         });
     }
 
+    public getMessageByPage(page: number, limit: number = 20): Promise<ChatItem[]> {
+        const fetchURL = `${this._baseURL}/messages_by_page?page=${page}&limit=${limit}`;
+        return fetch(fetchURL)
+            .then(response => {
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        alert('No more messages found');
+                        return [];
+                    }
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json() as Promise<ChatItem[]>;
+            })
+            .catch(error => {
+                console.error('Error fetching messages:', error);
+                throw error;
+            });
+    }
 
     private _getEditorString(contributingUsers: UserEditing[], cellLabel: string): string {
         for (let user of contributingUsers) {
