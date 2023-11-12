@@ -296,6 +296,30 @@ app.get('/messages', (req: express.Request, res: express.Response) => {
     
 });
 
+app.get('/messages_by_page', (req, res) => {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const offset = (page - 1) * limit;
+
+    db.collection('messages')
+        .orderBy('timestamp', 'desc')
+        .offset(offset)
+        .limit(limit)
+        .get()
+        .then(snapshot => {
+            const messages = snapshot.docs.map(doc => doc.data());
+            if (messages.length <= 0) {
+                res.status(404).send('No messages found');
+                return;
+            }
+            res.status(200).send(messages);
+        })
+        .catch(error => {
+            console.error('Error retrieving messages:', error);
+            res.status(500).send('Error retrieving messages');
+        });
+});
+
 app.post('/messages', (req: express.Request, res: express.Response) => {
     const userName = req.body.userName;
     if (!userName) {
