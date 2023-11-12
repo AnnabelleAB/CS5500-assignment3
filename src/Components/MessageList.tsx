@@ -13,7 +13,8 @@ interface MessageListProps {
 } // interface MessageListProps
 
 const convertDate = (timestamp: number | { _seconds: number; _nanoseconds: number }) => {
-    return new Date (typeof timestamp === 'number' ? timestamp : (timestamp._seconds * 1000 + timestamp._nanoseconds / 1000000)).toLocaleTimeString();
+    const date = new Date(typeof timestamp === 'number' ? timestamp : (timestamp._seconds * 1000 + timestamp._nanoseconds / 1000000));
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
 }
 
 const MessageList: React.FC<MessageListProps> = ({ messages }) => {
