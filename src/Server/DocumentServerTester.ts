@@ -231,6 +231,41 @@ async function postChatItem(userName: string, content: string) {
         });
 }
 
+async function getChatMessagesByPage(page: number) {
+    return axios.get(`${baseURL}/messages_by_page?page=${page}`)
+        .then(response => {
+            const messages = response.data;
+            return messages;
+        });
+}
+
+const processMessages = (newMessages: ChatItem[], existingMessages: ChatItem[]): ChatItem[] => {
+    
+    newMessages = Array.isArray(newMessages) ? newMessages : [];
+    existingMessages = Array.isArray(existingMessages) ? existingMessages : [];
+    const combinedMessages = [...newMessages, ...existingMessages];
+
+    combinedMessages.sort((a, b) => {
+        const timestampA = typeof a.timestamp === 'number' ? a.timestamp : (a.timestamp._seconds * 1000 + a.timestamp._nanoseconds / 1000000);
+        const timestampB = typeof b.timestamp === 'number' ? b.timestamp : (b.timestamp._seconds * 1000 + b.timestamp._nanoseconds / 1000000);
+
+        return timestampB - timestampA;
+    });
+
+    return uniqueMessages(combinedMessages);
+};
+
+const uniqueMessages = (messages: ChatItem[]): ChatItem[] => {
+    const uniqueMap = new Map<string, ChatItem>();
+    messages.forEach(msg => {
+        const identifier = `${msg.timestamp}-${msg.user}-${msg.content}`;
+        if (!uniqueMap.has(identifier)) {
+            uniqueMap.set(identifier, msg);
+        }
+    });
+    return Array.from(uniqueMap.values());
+};
+
 // this is the main function that runs the tests
 async function runTests() {
 
@@ -437,6 +472,37 @@ async function runTests() {
         }
     }
 
+    // Test to verify no duplication when loading more messages
+    try {
+        const page = 2;
+        const initialMessages = await getChatItems();
+        const moreMessages = await getChatMessagesByPage(page);
+        const combinedAndUniqueMessages = processMessages(moreMessages, initialMessages); 
+        const uniqueIdentifiers = new Set(combinedAndUniqueMessages.map((msg: ChatItem) => `${msg.timestamp}-${msg.user}-${msg.content}`));
+        console.log('SUCCESS: No Duplication on Load More messages,', uniqueIdentifiers.size === combinedAndUniqueMessages.length);
+    } catch (error) {
+        console.error('Failed: Test No Duplication on Load More messages: ', error);
+    }
+
+    // Check for the scenario where there are no more messages to load
+    try {
+        const emptyPage = 999999;
+        const emptyMessagesResponse = await getChatMessagesByPage(emptyPage);
+
+        if (emptyMessagesResponse.status === 404) {
+            console.log('SUCCESS: No more messages to load when page exceeds limitation, 404 status received');
+        } else {
+            const emptyMessages = emptyMessagesResponse.data;
+            console.assert(emptyMessages.length === 0, 'There should be no messages on a high page number assuming no more messages are available');
+            console.log('SUCCESS: no more messages to load');
+        }
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response && error.response.status === 404) {
+            console.log('SUCCESS: No more messages to load when page exceeds limitation, 404 status received');
+        } else {
+            console.error('An unexpected error occurred:', error);
+        }
+    }
 }
 
 // call the test runner

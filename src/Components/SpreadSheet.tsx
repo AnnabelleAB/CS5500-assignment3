@@ -283,7 +283,7 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
       <KeyPad onButtonClick={onButtonClick}
         onCommandButtonClick={onCommandButtonClick}
         currentlyEditing={currentlyEditing}></KeyPad>
-      <MessageList messages={messages} />
+      <MessageList messages={processMessages(historyMessages, messages)} />
       <div>
         <input placeholder="Type a message..." value={message} onChange={onMessageChange}>
         </input>
