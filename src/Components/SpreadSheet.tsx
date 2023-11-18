@@ -6,6 +6,7 @@ import SpreadSheetClient from "../Engine/SpreadSheetClient";
 import SheetHolder from "./SheetHolder";
 import MessageList from "./MessageList";
 import { ChatItem } from "../Server/ChatItem";
+import "./SpreadSheet.css";
 
 import { ButtonNames } from "../Engine/GlobalDefinitions";
 import ServerSelector from "./ServerSelector";
@@ -283,16 +284,20 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
       <KeyPad onButtonClick={onButtonClick}
         onCommandButtonClick={onCommandButtonClick}
         currentlyEditing={currentlyEditing}></KeyPad>
-      <MessageList messages={processMessages(historyMessages, messages)} />
-      <div>
-        <input placeholder="Type a message..." value={message} onChange={onMessageChange}>
-        </input>
-        <button onClick = {sendMessage}>
-          Send
-        </button>
-        <button onClick={loadMoreMessages}>
-          Load More
-        </button>
+      <div className="chat-window">
+        <div className="message-container">
+          <MessageList messages={processMessages(historyMessages, messages)} />
+        </div>
+        <div className="input-container">
+          <input placeholder="Type a message..." value={message} onChange={onMessageChange}>
+          </input>
+          <button onClick = {sendMessage}>
+            Send
+          </button>
+          <button onClick={loadMoreMessages}>
+            Load More
+          </button>
+        </div>
       </div>
       <ServerSelector serverSelector={serverSelector} serverSelected={serverSelected} />
     </div>
