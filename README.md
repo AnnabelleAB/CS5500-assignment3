@@ -52,3 +52,8 @@ You don’t have to ever use `eject`. The curated feature set is suitable for sm
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
 To learn React, check out the [React documentation](https://reactjs.org/).
+
+## How to build and run the project in local host
+1. `npm install`
+2. `npm run start-server` for the back end
+3. `npm run start` for the front end
