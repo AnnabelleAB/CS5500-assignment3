@@ -10,7 +10,7 @@ import "./SpreadSheet.css";
 
 import { ButtonNames } from "../Engine/GlobalDefinitions";
 import ServerSelector from "./ServerSelector";
-
+import ChatWindow from "./ChatWindow";
 
 interface SpreadSheetProps {
   documentName: string;
@@ -284,7 +284,7 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
       <KeyPad onButtonClick={onButtonClick}
         onCommandButtonClick={onCommandButtonClick}
         currentlyEditing={currentlyEditing}></KeyPad>
-      <div className="chat-window">
+      {/* <div className="chat-window">
         <div className="message-container">
           <MessageList messages={processMessages(historyMessages, messages)} />
         </div>
@@ -298,7 +298,13 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
             Load More
           </button>
         </div>
-      </div>
+      </div> */}
+      <ChatWindow 
+      messages={processMessages(historyMessages, messages)}
+      message={message}
+      onMessageChange={onMessageChange} 
+      sendMessage={sendMessage} 
+      loadMoreMessages={loadMoreMessages}></ChatWindow>
       <ServerSelector serverSelector={serverSelector} serverSelected={serverSelected} />
     </div>
     </>
