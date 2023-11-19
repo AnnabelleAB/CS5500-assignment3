@@ -1,0 +1,10 @@
+.message-list {
+    list-style-type: none; 
+    padding: 0; 
+    margin: 0;
+}
+
+.message-item {
+    text-align: left; 
+    margin-bottom: 5px;
+}

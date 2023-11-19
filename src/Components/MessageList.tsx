@@ -1,6 +1,7 @@
 import React from "react";
 import { ChatItem } from "../Server/ChatItem";
 import { reverse } from "dns";
+import "./MessageList.css";
 
 /**
  * The status component is a simple component that displays the status of the calculator.
@@ -20,10 +21,13 @@ const convertDate = (timestamp: number | { _seconds: number; _nanoseconds: numbe
 const MessageList: React.FC<MessageListProps> = ({ messages }) => {
   const message = messages.slice().reverse()
   return (
-    <ul>
-          {message.map((item) => <li><label>{item.user} : </label>{item.content} at {convertDate(item.timestamp)}</li>)}
-  </ul>
-
+    <ul className="message-list">
+      {message.map((item) => 
+      <li className="message-item">
+        <label>{item.user} : </label>
+        {item.content} at {convertDate(item.timestamp)}
+      </li>)}
+    </ul>
   );
 }
 
