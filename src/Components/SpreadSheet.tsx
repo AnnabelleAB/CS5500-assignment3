@@ -66,7 +66,7 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
 
   useEffect(() => {
     const messageInterval = setInterval(() => {
-      const fetchURL = "http://localhost:3005/messages";
+      const fetchURL = "https://test-as3.onrender.com/messages";
       fetch(fetchURL).then(response => {
         return response.json() as Promise<ChatItem[]>;
       }).then((chatItems: ChatItem[]) => {

@@ -41,7 +41,8 @@ class SpreadSheetClient {
             this.setServerSelector('renderhost');
             console.log(' Running production client')
         } else {
-            this.setServerSelector('localhost');  // change this to renderhost if you want to default to renderhost
+            // this.setServerSelector('localhost');  // change this to renderhost if you want to default to renderhost
+            this.setServerSelector('renderhost');
             console.log(' Running development client')
         }
 
