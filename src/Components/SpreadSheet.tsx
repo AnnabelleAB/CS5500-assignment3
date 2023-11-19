@@ -284,21 +284,6 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
       <KeyPad onButtonClick={onButtonClick}
         onCommandButtonClick={onCommandButtonClick}
         currentlyEditing={currentlyEditing}></KeyPad>
-      {/* <div className="chat-window">
-        <div className="message-container">
-          <MessageList messages={processMessages(historyMessages, messages)} />
-        </div>
-        <div className="input-container">
-          <input placeholder="Type a message..." value={message} onChange={onMessageChange}>
-          </input>
-          <button onClick = {sendMessage}>
-            Send
-          </button>
-          <button onClick={loadMoreMessages}>
-            Load More
-          </button>
-        </div>
-      </div> */}
       <ChatWindow 
       messages={processMessages(historyMessages, messages)}
       message={message}
