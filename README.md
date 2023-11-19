@@ -54,6 +54,6 @@ You can learn more in the [Create React App documentation](https://facebook.gith
 To learn React, check out the [React documentation](https://reactjs.org/).
 
 ## How to build and run the project in local host
-`npm run start-server` for the back end
-and then
-`npm run start` for the front end
+1. `npm install`
+2. `npm run start-server` for the back end
+3. `npm run start` for the front end
