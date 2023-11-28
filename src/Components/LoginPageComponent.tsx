@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import './LoginPageComponent.css';
+import React, { useState, useEffect } from "react";
+import "./LoginPageComponent.css";
+import Card from "react-bootstrap/Card";
 
 /**
  * Login PageComponent is the component that will be used to display the login page
@@ -7,18 +8,22 @@ import './LoginPageComponent.css';
  * that the user has access to.  Each document will have a button that will allow the
  * user to edit the document. when the user clicks on the button, the user will be
  * taken to the document page.
- * @returns 
+ * @returns
  */
 
-import SpreadSheetClient from '../Engine/SpreadSheetClient';
-import { spread } from 'axios';
+import SpreadSheetClient from "../Engine/SpreadSheetClient";
+import { spread } from "axios";
 
 interface LoginPageProps {
   spreadSheetClient: SpreadSheetClient;
 }
 
-function LoginPageComponent({ spreadSheetClient }: LoginPageProps): JSX.Element {
-  const [userName, setUserName] = useState(window.sessionStorage.getItem('userName') || "");
+function LoginPageComponent({
+  spreadSheetClient,
+}: LoginPageProps): JSX.Element {
+  const [userName, setUserName] = useState(
+    window.sessionStorage.getItem("userName") || ""
+  );
   const [documents, setDocuments] = useState<string[]>([]);
 
   // SpreadSheetClient is fetching the documents from the server so we should
@@ -34,23 +39,25 @@ function LoginPageComponent({ spreadSheetClient }: LoginPageProps): JSX.Element 
   });
 
   function getUserLogin() {
-    return <div>
-      <input
-        type="text"
-        placeholder="User name"
-        defaultValue={userName}
-        onKeyDown={(event) => {
-          if (event.key === 'Enter') {
-            // get the text from the input
-            let userName = (event.target as HTMLInputElement).value;
-            window.sessionStorage.setItem('userName', userName);
-            // set the user name
-            setUserName(userName);
-            spreadSheetClient.userName = userName;
-          }
-        }} />
-    </div>
-
+    return (
+      <div>
+        <input
+          type="text"
+          placeholder="Your name"
+          defaultValue={userName}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              // get the text from the input
+              let userName = (event.target as HTMLInputElement).value;
+              window.sessionStorage.setItem("userName", userName);
+              // set the user name
+              setUserName(userName);
+              spreadSheetClient.userName = userName;
+            }
+          }}
+        />
+      </div>
+    );
   }
 
   function checkUserName(): boolean {
@@ -67,93 +74,82 @@ function LoginPageComponent({ spreadSheetClient }: LoginPageProps): JSX.Element 
 
     // the href needs to be updated.   Remove /documnents from the end of the URL
     const href = window.location.href;
-    const index = href.lastIndexOf('/');
+    const index = href.lastIndexOf("/");
     let newURL = href.substring(0, index);
-    newURL = newURL + "/" + documentName
-    window.history.pushState({}, '', newURL);
+    newURL = newURL + "/" + documentName;
+    window.history.pushState({}, "", newURL);
     window.location.reload();
-
   }
 
+  function login() {
+    getUserLogin();
+  }
 
   function logout() {
     // clear the user name
-    window.sessionStorage.setItem('userName', "");
+    window.sessionStorage.setItem("userName", "");
     // reload the page
     window.location.reload();
   }
 
-
   function buildFileSelector() {
     if (userName === "") {
-      return <div>
-        <h4>Please enter a user name</h4>
-        <br />
-        You must be logged in to<br />
-        access the documents!
-      </div>;
+      return <div></div>;
     }
 
     const sheets: string[] = spreadSheetClient.getSheets();
     // make a table with the list of sheets and a button beside each one to edit the sheet
-    return <div>
-      <table>
-        <thead>
-          <tr className="selector-title">
-            <th>Document Name---</th>
-            <th>Actions</th>
-
-          </tr>
-        </thead>
-        <tbody>
-          {sheets.map((sheet) => {
-            return <tr className="selector-item">
-              <td >{sheet}</td>
-              <td><button onClick={() => loadDocument(sheet)}>
-                Edit
-              </button></td>
+    return (
+      <div>
+        <table>
+          <thead>
+            <tr className="selector-title">
+              <th className="first">Document Name</th>
+              <th>Actions</th>
             </tr>
-          })}
-        </tbody>
-      </table>
-    </div >
+          </thead>
+          <tbody>
+            {sheets.map((sheet) => {
+              return (
+                <tr className="selector-item">
+                  <td className="first">{sheet}</td>
+                  <td>
+                    <button onClick={() => loadDocument(sheet)}>Edit</button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    );
   }
+  
 
   function getLoginPanel() {
-    return <div>
-      <h5 >Login Page</h5>
-      {getUserLogin()}
-      <button onClick={() => logout()}>Logout</button>
-    </div>
+    return (
+      <div>
+        <h4>Welcome Back</h4>
+        {getUserLogin()}
+        <button onClick={() => logout()}>Logout</button>
+      </div>
+    );
   }
 
   function loginPage() {
-
-    return <table>
-
-
-      <tbody>
-        <tr>
-          <td>
-            {getLoginPanel()}
-          </td>
-          <td>
-            {buildFileSelector()}
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-
+    return (
+      <table>
+        <tbody>
+          <tr>
+            <td>{getLoginPanel()}</td>
+            <td>{buildFileSelector()}</td>
+          </tr>
+        </tbody>
+      </table>
+    );
   }
 
-
-
-  return (
-    <div className="LoginPageComponent">
-      {loginPage()}
-    </div>
-  );
+  return <div className="LoginPageComponent">{loginPage()}</div>;
 }
 
 export default LoginPageComponent;
