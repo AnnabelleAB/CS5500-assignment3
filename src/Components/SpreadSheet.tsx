@@ -4,100 +4,75 @@ import Status from "./Status";
 import KeyPad from "./KeyPad";
 import SpreadSheetClient from "../Engine/SpreadSheetClient";
 import SheetHolder from "./SheetHolder";
-import MessageList from "./MessageList";
-import { ChatItem } from "../Server/ChatItem";
 import "./SpreadSheet.css";
-
 import { ButtonNames } from "../Engine/GlobalDefinitions";
-import ServerSelector from "./ServerSelector";
 import ChatWindow from "./ChatWindow";
+import { ChatItem } from "../Server/ChatItem";
 
 interface SpreadSheetProps {
   documentName: string;
   spreadSheetClient: SpreadSheetClient;
 }
 
-/**
- * the main component for the Spreadsheet.  It is the parent of all the other components
- *
- *
- * */
-
-// create the client that talks to the backend.
-
 function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
-  const [formulaString, setFormulaString] = useState(
-    spreadSheetClient.getFormulaString()
-  );
-  const [resultString, setResultString] = useState(
-    spreadSheetClient.getResultString()
-  );
-  const [cells, setCells] = useState(
-    spreadSheetClient.getSheetDisplayStringsForGUI()
-  );
-  const [statusString, setStatusString] = useState(
-    spreadSheetClient.getEditStatusString()
-  );
-  const [currentCell, setCurrentCell] = useState(
-    spreadSheetClient.getWorkingCellLabel()
-  );
-  const [currentlyEditing, setCurrentlyEditing] = useState(
-    spreadSheetClient.getEditStatus()
-  );
-  const [userName, setUserName] = useState(
-    window.sessionStorage.getItem("userName") || ""
-  );
-  const [serverSelected, setServerSelected] = useState("localhost");
+  const [formulaString, setFormulaString] = useState(spreadSheetClient.getFormulaString());
+  const [resultString, setResultString] = useState(spreadSheetClient.getResultString());
+  const [cells, setCells] = useState(spreadSheetClient.getSheetDisplayStringsForGUI());
+  const [statusString, setStatusString] = useState(spreadSheetClient.getEditStatusString());
+  const [currentCell, setCurrentCell] = useState(spreadSheetClient.getWorkingCellLabel());
+  const [currentlyEditing, setCurrentlyEditing] = useState(spreadSheetClient.getEditStatus());
+  const [userName, setUserName] = useState(window.sessionStorage.getItem("userName") || "");
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([] as ChatItem[]);
-  const [currentPage, setCurrentPage] = useState(2);
-  const [historyMessages, setHistoryMessages] = useState([] as ChatItem[]);
+  const [allMessages, setAllMessages] = useState<ChatItem[]>([]);
+  const [needsUpdate, setNeedsUpdate] = useState(false);
+
+  // fetch('/all-messages')
+  //   .then(response => response.json())
+  //   .then(data => {
+  //     setAllMessages(data);
+  //   })
+  //   .catch(error => {
+  //     console.error('Error fetching messages:', error);
+  //   });
+  useEffect(() => {
+    const fetchURL = "http://localhost:3005/all-messages";
+    fetch(fetchURL)
+      .then(response => response.json())
+      .then(data => {
+        setAllMessages(data);
+      })
+      .catch(error => {
+        console.error('Error fetching messages:', error);
+      });
+  }, []); // Empty dependency array to run only on component mount
+
+
 
   function updateDisplayValues(): void {
-    spreadSheetClient.userName = userName;
-    spreadSheetClient.documentName = documentName;
-    setFormulaString(spreadSheetClient.getFormulaString());
-    setResultString(spreadSheetClient.getResultString());
-    setStatusString(spreadSheetClient.getEditStatusString());
-    setCells(spreadSheetClient.getSheetDisplayStringsForGUI());
-    setCurrentCell(spreadSheetClient.getWorkingCellLabel());
-    setCurrentlyEditing(spreadSheetClient.getEditStatus());
-    const errorOccurred = spreadSheetClient.getErrorOccurred();
-    if (errorOccurred !== "") {
-      alert(errorOccurred);
+    if (needsUpdate) {
+      spreadSheetClient.userName = userName;
+      spreadSheetClient.documentName = documentName;
+      setFormulaString(spreadSheetClient.getFormulaString());
+      setResultString(spreadSheetClient.getResultString());
+      setStatusString(spreadSheetClient.getEditStatusString());
+      setCells(spreadSheetClient.getSheetDisplayStringsForGUI());
+      setCurrentCell(spreadSheetClient.getWorkingCellLabel());
+      setCurrentlyEditing(spreadSheetClient.getEditStatus());
+      const errorOccurred = spreadSheetClient.getErrorOccurred();
+      if (errorOccurred !== "") {
+        alert(errorOccurred);
+      }
+      setNeedsUpdate(false);
     }
   }
 
-  // useEffect to refetch the data every 1/20 of a second
   useEffect(() => {
-    const interval = setInterval(() => {
+    if (needsUpdate) {
       updateDisplayValues();
-    }, 50);
-    return () => clearInterval(interval);
-  });
-
-  useEffect(() => {
-    const messageInterval = setInterval(() => {
-      const fetchURL = "http://localhost:3005/messages";
-      fetch(fetchURL)
-        .then((response) => {
-          return response.json() as Promise<ChatItem[]>;
-        })
-        .then((chatItems: ChatItem[]) => {
-          setMessages((prevMessages) =>
-            processMessages(chatItems, historyMessages)
-          );
-        });
-    }, 5000);
-    return () => clearInterval(messageInterval);
-  }, []);
+    }
+  }, [needsUpdate]);
 
   function returnToLoginPage() {
-    // set the document name
-    spreadSheetClient.documentName = documentName;
-    // reload the page
-
-    // the href needs to be updated.   Remove /<sheetname> from the end of the URL
     const href = window.location.href;
     const index = href.lastIndexOf("/");
     let newURL = href.substring(0, index);
@@ -109,76 +84,53 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
   function sendMessage(event: React.MouseEvent<HTMLButtonElement>): void {
     spreadSheetClient.addMessage(userName, message);
     setMessage("");
+    setNeedsUpdate(true);
   }
 
   function onMessageChange(event: React.FormEvent<HTMLInputElement>): void {
     setMessage(event.currentTarget.value);
   }
 
-  /**
-   * Processes an array of new and existing chat messages by combining them,
-   * sorting them based on their timestamp, and removing duplicates.
-   *
-   * @param {ChatItem[]} newMessages - The array of new messages to be added.
-   * @param {ChatItem[]} existingMessages - The current array of messages.
-   * @returns {ChatItem[]} A sorted and unique array of combined messages.
-   */
-  const processMessages = (
-    newMessages: ChatItem[],
-    existingMessages: ChatItem[]
-  ): ChatItem[] => {
-    const combinedMessages = [...newMessages, ...existingMessages];
-
-    combinedMessages.sort((a, b) => {
-      // Extract timestamps as numbers
-      const timestampA =
-        typeof a.timestamp === "number"
-          ? a.timestamp
-          : a.timestamp._seconds * 1000 + a.timestamp._nanoseconds / 1000000;
-      const timestampB =
-        typeof b.timestamp === "number"
-          ? b.timestamp
-          : b.timestamp._seconds * 1000 + b.timestamp._nanoseconds / 1000000;
-
-      return timestampB - timestampA;
-    });
-
-    return uniqueMessages(combinedMessages);
-  };
-
-  /**
-   * Deduplicates an array of chat messages based on a combination of timestamp, user, and content.
-   *
-   * @param {ChatItem[]} messages - The array of messages to deduplicate.
-   * @returns {ChatItem[]} An array of unique messages.
-   */
-  const uniqueMessages = (messages: ChatItem[]): ChatItem[] => {
-    const unique = new Map();
-    for (const msg of messages) {
-      const identifier = `${msg.timestamp}-${msg.user}-${msg.content}`;
-      if (!unique.has(identifier)) {
-        unique.set(identifier, msg);
-      }
+  async function onCommandButtonClick(text: string): Promise<void> {
+    if (!checkUserName()) {
+      return;
     }
-    return Array.from(unique.values());
-  };
+    switch (text) {
+      case ButtonNames.edit_toggle:
+        spreadSheetClient.setEditStatus(!currentlyEditing);
+        break;
+      case ButtonNames.clear:
+        spreadSheetClient.removeToken();
+        break;
+      case ButtonNames.allClear:
+        spreadSheetClient.clearFormula();
+        break;
+      // Add other cases as needed
+    }
+    setNeedsUpdate(true);
+  }
 
-  /**
-   * Loads more chat messages from the server based on the current page state.
-   * It then processes the new messages with the existing history messages to
-   * maintain a unique and sorted list of chat messages. If successful, it increments
-   * the current page count to prepare for the next invocation.
-   */
-  function loadMoreMessages() {
-    spreadSheetClient
-      .getMessageByPage(currentPage)
-      .then((moreMessages) => {
-        setHistoryMessages((prevHistory) =>
-          processMessages(moreMessages, prevHistory)
-        );
-        setCurrentPage((prevPage) => prevPage + 1);
-      })
-      .catch((error) => console.error("Error loading more messages:", error));
+  function onButtonClick(event: React.MouseEvent<HTMLButtonElement>): void {
+    if (!checkUserName()) {
+      return;
+    }
+    const text = event.currentTarget.textContent || "";
+    spreadSheetClient.setEditStatus(true);
+    spreadSheetClient.addToken(text);
+    setNeedsUpdate(true);
+  }
+
+  function onCellClick(event: React.MouseEvent<HTMLButtonElement>): void {
+    if (!checkUserName()) {
+      return;
+    }
+    const cellLabel = event.currentTarget.getAttribute("cell-label") || "";
+    if (currentlyEditing) {
+      spreadSheetClient.addCell(cellLabel);
+    } else {
+      spreadSheetClient.requestViewByLabel(cellLabel);
+    }
+    setNeedsUpdate(true);
   }
 
   function checkUserName(): boolean {
@@ -189,108 +141,10 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
     return true;
   }
 
-  /**
-   *
-   * @param event
-   *
-   * This function is the call back for the command buttons
-   *
-   * It will call the machine to process the command button
-   *
-   * the buttons done, edit, clear, all clear, and restart do not require asynchronous processing
-   *
-   * the other buttons do require asynchronous processing and so the function is marked async
-   */
-  async function onCommandButtonClick(text: string): Promise<void> {
-    if (!checkUserName()) {
-      return;
-    }
-
-    switch (text) {
-      case ButtonNames.edit_toggle:
-        if (currentlyEditing) {
-          spreadSheetClient.setEditStatus(false);
-        } else {
-          spreadSheetClient.setEditStatus(true);
-        }
-        setStatusString(spreadSheetClient.getEditStatusString());
-        break;
-
-      case ButtonNames.clear:
-        spreadSheetClient.removeToken();
-        break;
-
-      case ButtonNames.allClear:
-        spreadSheetClient.clearFormula();
-        break;
-    }
-    // update the display values
-    updateDisplayValues();
-  }
-
-  /**
-   *  This function is the call back for the number buttons and the Parenthesis buttons
-   *
-   * They all automatically start the editing of the current formula.
-   *
-   * @param event
-   *
-   * */
-  function onButtonClick(event: React.MouseEvent<HTMLButtonElement>): void {
-    if (!checkUserName()) {
-      return;
-    }
-    const text = event.currentTarget.textContent;
-    let trueText = text ? text : "";
-    spreadSheetClient.setEditStatus(true);
-    spreadSheetClient.addToken(trueText);
-
-    updateDisplayValues();
-  }
-
-  // this is to help with development,  it allows us to select the server
-  function serverSelector(buttonName: string) {
-    setServerSelected(buttonName);
-    spreadSheetClient.setServerSelector(buttonName);
-  }
-
-  /**
-   *
-   * @param event
-   *
-   * This function is called when a cell is clicked
-   * If the edit status is true then it will send the token to the machine.
-   * If the edit status is false then it will ask the machine to update the current formula.
-   */
-  function onCellClick(event: React.MouseEvent<HTMLButtonElement>): void {
-    if (userName === "") {
-      alert("Please enter a user name");
-      return;
-    }
-    const cellLabel = event.currentTarget.getAttribute("cell-label");
-    // calculate the current row and column of the clicked on cell
-
-    const editStatus = spreadSheetClient.getEditStatus();
-    let realCellLabel = cellLabel ? cellLabel : "";
-
-    // if the edit status is true then add the token to the machine
-    if (editStatus) {
-      spreadSheetClient.addCell(realCellLabel); // this will never be ""
-      updateDisplayValues();
-    }
-    // if the edit status is false then set the current cell to the clicked on cell
-    else {
-      spreadSheetClient.requestViewByLabel(realCellLabel);
-
-      updateDisplayValues();
-    }
-  }
-
   return (
     <div>
       <div className="btnandstatus">
         <button className="backbtn" onClick={returnToLoginPage}>
-          {" "}
           Back to Document List
         </button>
         <Status statusString={statusString} userName={userName}></Status>
@@ -303,36 +157,29 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
                 formulaString={formulaString}
                 resultString={resultString}
               ></Formula>
-              {
-                <SheetHolder
-                  cellsValues={cells}
-                  onClick={onCellClick}
-                  currentCell={currentCell}
-                  currentlyEditing={currentlyEditing}
-                ></SheetHolder>
-              }
+              <SheetHolder
+                cellsValues={cells}
+                onClick={onCellClick}
+                currentCell={currentCell}
+                currentlyEditing={currentlyEditing}
+              ></SheetHolder>
               <KeyPad
                 onButtonClick={onButtonClick}
                 onCommandButtonClick={onCommandButtonClick}
                 currentlyEditing={currentlyEditing}
-              ></KeyPad>{" "}
+              ></KeyPad>
             </td>
             <td>
               <ChatWindow
-                messages={processMessages(historyMessages, messages)}
+                allMessages={allMessages}
                 message={message}
                 onMessageChange={onMessageChange}
                 sendMessage={sendMessage}
-                loadMoreMessages={loadMoreMessages}
-              ></ChatWindow>
+              />
             </td>
           </tr>
         </tbody>
       </table>
-      {/* <ServerSelector
-        serverSelector={serverSelector}
-        serverSelected={serverSelected}
-      /> */}
     </div>
   );
 }

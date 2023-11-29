@@ -282,19 +282,35 @@ app.put('/document/clear/formula/:name', (req: express.Request, res: express.Res
 
 //20 Message api 
 app.get('/messages', (req: express.Request, res: express.Response) => {
+    const lastFetchedTimestamp = req.query.lastFetchedTimestamp;
+    let query = db.collection('messages').orderBy('timestamp', 'desc');
 
-    const messagesRef = db.collection('messages').orderBy('timestamp', 'desc').limit(20);
-    let messages;
-    messagesRef.get()
+    if (lastFetchedTimestamp) {
+        query = query.startAfter(lastFetchedTimestamp);
+    }
+
+    query.limit(20).get()
         .then(snapshot => {
-            messages = snapshot.docs.map(doc => doc.data());
+            const messages = snapshot.docs.map(doc => doc.data());
             res.status(200).send(messages);
         }).catch((error) => {
             console.error('Error retrieving messages:', error);
             res.status(500).send('Error retrieving messages');
-        })
-    
+        });
 });
+
+app.get('/all-messages', (req: express.Request, res: express.Response) => {
+    db.collection('messages').orderBy('timestamp', 'desc').get()
+        .then(snapshot => {
+            const messages = snapshot.docs.map(doc => doc.data());
+            res.status(200).send(messages);
+        })
+        .catch(error => {
+            console.error('Error retrieving all messages:', error);
+            res.status(500).send('Error retrieving messages');
+        });
+});
+
 
 app.get('/messages_by_page', (req, res) => {
     const page = parseInt(req.query.page as string) || 1;
@@ -344,7 +360,7 @@ app.post('/messages', (req: express.Request, res: express.Response) => {
     ).catch((error) => {
         console.error('Error adding message:', error);
         res.status(500).send('Error adding message');
-        })
+    })
 });
 
 
