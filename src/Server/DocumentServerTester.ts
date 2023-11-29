@@ -216,7 +216,7 @@ function checkCell(document: any, cell: string, value: number, formula: string[]
 }
 
 async function getChatItems() {
-    return axios.get(`${baseURL}/messages`)
+    return axios.get(`${baseURL}/all-messages`)
         .then(response => {
             const chatItems = response.data;
             return chatItems;
