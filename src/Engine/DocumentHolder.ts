@@ -32,6 +32,8 @@ export class DocumentHolder {
     // the document folder defaults to a folder called documents in the current directory
     // this can be changed by calling setDocumentFolder
     private _documentFolder: string;
+    private _filterWordsPath: string;
+    private _filterWords: string[];
 
     constructor(documentDirectory: string = 'documents') {
         this._documents = new Map<string, SpreadSheetController>();
@@ -41,6 +43,9 @@ export class DocumentHolder {
         this._documentFolder = path.join(rootPath, documentDirectory);
         this._initializeDocumentDirectory();
         this._loadDocuments();
+        this._filterWordsPath = path.join(rootPath, 'filterWords.txt');
+        this._filterWords = [];
+        this._loadFilterWords();
     }
 
     private _initializeDocumentDirectory(): void {
@@ -78,6 +83,25 @@ export class DocumentHolder {
         );
     }
 
+    private _loadFilterWords(): void {
+        try {
+            const words = fs.readFileSync(this._filterWordsPath, 'utf8');
+            const wordsArr = words.split(',');
+            if (wordsArr.length == 0 || wordsArr[0] === '') {
+                return;
+            }
+            this._filterWords = wordsArr;
+        } catch (error) {
+            if (error && (error as NodeJS.ErrnoException).code === 'ENOENT') {
+                fs.writeFileSync(this._filterWordsPath, '', 'utf8');
+            } else {
+                // Handle other exceptions
+                console.error(`Error: ${(error as NodeJS.ErrnoException).message}`);
+            }
+            return;
+        }
+    }
+
     private _checkForNewDocuments(): void {
         const files = fs.readdirSync(this._documentFolder);
         // if the file is not in the map, add it
@@ -95,8 +119,6 @@ export class DocumentHolder {
         }
         );
     }
-
-
 
     private _saveDocument(name: string): void {
         let document = this._documents.get(name);
@@ -230,7 +252,16 @@ export class DocumentHolder {
     }
 
 
+    public getFilterWords(): string[] {
+        return this._filterWords;
+    }
 
+    public addWord(filterWord: string): any{
+        this._filterWords.push(filterWord.toLowerCase());
+        var newFilterWord = this._filterWords.join(',');
+        fs.writeFileSync(this._filterWordsPath, newFilterWord);
+        return this._filterWords;
+    }
 
 }
 

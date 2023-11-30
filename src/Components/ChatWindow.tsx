@@ -6,16 +6,20 @@ import { GoSearch } from "react-icons/go";
 import { BsChatDots } from "react-icons/bs";
 
 interface ChatWindowProps {
-  allMessages: ChatItem[];
+  // allMessages: ChatItem[];
   message: string;
   onMessageChange(event: React.FormEvent<HTMLInputElement>): void;
   sendMessage(event: React.MouseEvent<HTMLButtonElement>): void;
+  filteredWord: string;
+  onFilteredWordChange(event: React.FormEvent<HTMLInputElement>): void;
+  addFilteredWords(event: React.MouseEvent<HTMLButtonElement>): void;
 }
 
-function ChatWindow({ allMessages, message, onMessageChange, sendMessage }: ChatWindowProps) {
+function ChatWindow({ message, onMessageChange, sendMessage, filteredWord, onFilteredWordChange, addFilteredWords}: ChatWindowProps) {
 
   const [displayedMessages, setDisplayedMessages] = useState<ChatItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [allMessages, setAllMessages] = useState<ChatItem[]>([]);
 
   useEffect(() => {
     setDisplayedMessages(allMessages.slice(0, 20)); // Initially display only 20 messages
@@ -28,6 +32,7 @@ function ChatWindow({ allMessages, message, onMessageChange, sendMessage }: Chat
         .then(newMessages => {
           // Update the displayed messages only if there are new messages
           if (newMessages.length !== allMessages.length) {
+            setAllMessages(newMessages);
             setDisplayedMessages(newMessages.slice(0, 20));
           }
         })
@@ -63,6 +68,12 @@ function ChatWindow({ allMessages, message, onMessageChange, sendMessage }: Chat
     }
   };
 
+  const handleAddFilteredWord = (event: React.MouseEvent<HTMLButtonElement>) => {
+    addFilteredWords(event);
+    setDisplayedMessages([...displayedMessages]);
+  };
+
+
   return (
     <div className="chat-window">
       <h5>Chat Window <BsChatDots size={20} style={{ fontStyle: "bold" }} /></h5>
@@ -83,6 +94,14 @@ function ChatWindow({ allMessages, message, onMessageChange, sendMessage }: Chat
           <button onClick={loadMoreMessages}>Load More</button>
         )}
       </div>
+      <div style={{ fontSize: "14px" }}>Enter Filtered Words</div>
+      <input
+        type="text"
+        placeholder="Enter Filtered Words..."
+        value={filteredWord}
+        onChange={onFilteredWordChange}
+      />
+      <button onClick={handleAddFilteredWord}>Add</button>
     </div>
   );
 }
