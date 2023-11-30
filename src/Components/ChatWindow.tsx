@@ -77,7 +77,6 @@ function ChatWindow({ message, onMessageChange, sendMessage, filteredWord, onFil
   return (
     <div className="chat-window">
       <h5>Chat Window <BsChatDots size={20} style={{ fontStyle: "bold" }} /></h5>
-      <div style={{ fontSize: "14px" }}><GoSearch /> Search Message History</div>
       <input
         type="text"
         placeholder="Search Message History..."

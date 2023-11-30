@@ -7,7 +7,7 @@ export default function Header() {
     <>
       <div className="headerbc">
         <LuFileSpreadsheet size={22} style={{ color: "white" }} />
-        <text className="header">SpreedSheet</text>
+        <text className="header">Airtable</text>
       </div>
     </>
   );

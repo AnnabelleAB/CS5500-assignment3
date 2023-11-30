@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./LoginPageComponent.css";
 import Card from "react-bootstrap/Card";
-
+import { FaUserAstronaut } from "react-icons/fa";
 /**
  * Login PageComponent is the component that will be used to display the login page
  * If the user is logged in, then this component will display the list of documents
@@ -42,6 +42,12 @@ function LoginPageComponent({
     return (
       <div>
         <input
+          style={{
+            padding: "10px",
+            fontSize: "20px",
+            borderRadius: "5px",
+            border: "1px solid black",
+          }}
           type="text"
           placeholder="Your name"
           defaultValue={userName}
@@ -81,10 +87,6 @@ function LoginPageComponent({
     window.location.reload();
   }
 
-  function login() {
-    getUserLogin();
-  }
-
   function logout() {
     // clear the user name
     window.sessionStorage.setItem("userName", "");
@@ -100,48 +102,69 @@ function LoginPageComponent({
     const sheets: string[] = spreadSheetClient.getSheets();
     // make a table with the list of sheets and a button beside each one to edit the sheet
     return (
-      <div>
-        <table>
-          <thead>
-            <tr className="selector-title">
-              <th className="first">Document Name</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sheets.map((sheet) => {
-              return (
-                <tr className="selector-item">
-                  <td className="first">{sheet}</td>
-                  <td>
-                    <button onClick={() => loadDocument(sheet)}>Edit</button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <>
+        <div>
+          <div className="username">
+            <table>
+              <th style={{width:'100%'}}>
+                <FaUserAstronaut /> Hello! {userName}{" "}
+              </th>
+              <th>
+                <button className="logoutbtn" onClick={() => logout()}>
+                  Logout
+                </button>
+              </th>
+            </table>
+          </div>
+        </div>
+        <div>
+          <table className="wholeTable">
+            <thead>
+              <tr className="selector-title">
+                <th className="first">Document Name</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sheets.map((sheet) => {
+                return (
+                  <tr className="selector-item">
+                    <td className="first">{sheet}</td>
+                    <td style={{ textAlign: "center" }}>
+                      <button
+                        className="editbtn"
+                        onClick={() => loadDocument(sheet)}
+                      >
+                        Edit
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </>
     );
   }
-  
 
   function getLoginPanel() {
     return (
-      <div>
-        <h4>Welcome Back</h4>
+      <div style={{ textAlign: "center" }}>
+        <h1>Welcome Back</h1>
         {getUserLogin()}
-        <button onClick={() => logout()}>Logout</button>
       </div>
     );
   }
 
   function loginPage() {
+    if (userName === "") {
+      return <td>{getLoginPanel()}</td>;
+    }
     return (
       <table>
         <tbody>
           <tr>
-            <td>{getLoginPanel()}</td>
             <td>{buildFileSelector()}</td>
           </tr>
         </tbody>

@@ -1,6 +1,6 @@
 .selector-title {
     font-family: helvetica;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: bold;
     color: #f3f7f3;
     
@@ -11,10 +11,54 @@
     font-family: helvetica;
     font-size: 16px;
     font-weight: bold;
-    color: #1ab31a;
+    color: rgb(248, 247, 156);
 }
 .first{
     padding-right: 50px;
     padding-left: 20px;
+    text-align:'center';
 
 }
+
+.wholeTable{
+    padding-top: 20px;
+}
+
+.logoutbtn{
+    border: none;
+    padding: 8px 10px;
+    
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    border-radius: 6px;
+    font-weight: 500;
+    background-color:rgb(58, 58, 58);
+    color: rgb(255, 255, 255);
+    font-family: helvetica;
+}
+
+.username{
+    font-family: helvetica;
+    font-size: 20px;
+    font-weight: bold;
+    color: #f3f7f3;
+    border-bottom: rgb(31, 31, 31) 2px solid;
+    padding-bottom: 10px;
+}
+
+.editbtn{
+    border: none;
+    padding: 0.5px 13px;
+    margin-bottom: 2px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: helvetica;
+    align-items: center;
+    border-radius: 2px;
+}
+
