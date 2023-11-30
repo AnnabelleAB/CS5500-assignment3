@@ -441,6 +441,21 @@ class SpreadSheetClient {
             });
     }
 
+
+    public addFilteredWord(filteredWord: string): void{
+        const fetchURL = `${this._baseURL}/filtered-words`;
+        fetch(fetchURL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ "filteredWord": filteredWord})
+        })
+        .then(response => {
+           console.log(response.status);
+        });
+    }
+
     private _getEditorString(contributingUsers: UserEditing[], cellLabel: string): string {
         for (let user of contributingUsers) {
             if (user.cell === cellLabel) {

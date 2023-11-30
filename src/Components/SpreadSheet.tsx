@@ -23,8 +23,9 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
   const [currentlyEditing, setCurrentlyEditing] = useState(spreadSheetClient.getEditStatus());
   const [userName, setUserName] = useState(window.sessionStorage.getItem("userName") || "");
   const [message, setMessage] = useState("");
-  const [allMessages, setAllMessages] = useState<ChatItem[]>([]);
+  // const [allMessages, setAllMessages] = useState<ChatItem[]>([]);
   const [needsUpdate, setNeedsUpdate] = useState(false);
+  const [filteredWord, setFilteredWord] = useState("");
 
   // fetch('/all-messages')
   //   .then(response => response.json())
@@ -34,17 +35,17 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
   //   .catch(error => {
   //     console.error('Error fetching messages:', error);
   //   });
-  useEffect(() => {
-    const fetchURL = "http://localhost:3005/all-messages";
-    fetch(fetchURL)
-      .then(response => response.json())
-      .then(data => {
-        setAllMessages(data);
-      })
-      .catch(error => {
-        console.error('Error fetching messages:', error);
-      });
-  }, []); // Empty dependency array to run only on component mount
+  // useEffect(() => {
+  //   const fetchURL = "http://localhost:3005/all-messages";
+  //   fetch(fetchURL)
+  //     .then(response => response.json())
+  //     .then(data => {
+  //       setAllMessages(data);
+  //     })
+  //     .catch(error => {
+  //       console.error('Error fetching messages:', error);
+  //     });
+  // }, []); // Empty dependency array to run only on component mount
 
 
 
@@ -87,8 +88,18 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
     setNeedsUpdate(true);
   }
 
+  function addFilteredWords(event: React.MouseEvent<HTMLButtonElement>): void {
+    spreadSheetClient.addFilteredWord(filteredWord);
+    setFilteredWord("");
+    setNeedsUpdate(true);
+  }
+
   function onMessageChange(event: React.FormEvent<HTMLInputElement>): void {
     setMessage(event.currentTarget.value);
+  }
+
+  function onFilteredWordChange(event: React.FormEvent<HTMLInputElement>): void {
+    setFilteredWord(event.currentTarget.value);
   }
 
   async function onCommandButtonClick(text: string): Promise<void> {
@@ -171,10 +182,13 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
             </td>
             <td>
               <ChatWindow
-                allMessages={allMessages}
+                // allMessages={allMessages}
                 message={message}
                 onMessageChange={onMessageChange}
                 sendMessage={sendMessage}
+                filteredWord={filteredWord}
+                onFilteredWordChange={onFilteredWordChange}
+                addFilteredWords={addFilteredWords}
               />
             </td>
           </tr>

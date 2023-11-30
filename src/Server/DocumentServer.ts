@@ -33,6 +33,7 @@ import { DocumentHolder } from '../Engine/DocumentHolder';
 import { PortsGlobal } from '../ServerDataDefinitions';
 import { initializeApp, applicationDefault, cert } from 'firebase-admin/app';
 import { getFirestore, Timestamp, FieldValue, Filter, QuerySnapshot } from 'firebase-admin/firestore';
+import { ChatItem } from './ChatItem';
 
 
 // define a debug flag to turn on debugging
@@ -300,10 +301,29 @@ app.get('/messages', (req: express.Request, res: express.Response) => {
 });
 
 app.get('/all-messages', (req: express.Request, res: express.Response) => {
-    db.collection('messages').orderBy('timestamp', 'desc').get()
+    let filteredWords = documentHolder.getFilterWords();
+    let query = null;
+    if (filteredWords.length == 0) {
+        query = db.collection('messages')
+        .orderBy('timestamp', 'desc');
+    } else {
+        query = db.collection('messages')
+        .orderBy('content')
+        .where('content', 'not-in', filteredWords)
+        .orderBy('timestamp', 'desc');
+    }
+    query.get()
         .then(snapshot => {
             const messages = snapshot.docs.map(doc => doc.data());
-            res.status(200).send(messages);
+
+            //second filter case insensitive
+            let filteredResult: FirebaseFirestore.DocumentData[] = [];
+            messages.forEach((message) => { 
+                if (!filteredWords.some(word => message.content.toLowerCase().includes(word))) {
+                    filteredResult.push(message);
+                }
+            })
+            res.status(200).send(filteredResult);
         })
         .catch(error => {
             console.error('Error retrieving all messages:', error);
@@ -361,6 +381,24 @@ app.post('/messages', (req: express.Request, res: express.Response) => {
         console.error('Error adding message:', error);
         res.status(500).send('Error adding message');
     })
+});
+
+app.get('/filtered-words', (req: express.Request, res: express.Response) => {
+    const filterWords = documentHolder.getFilterWords();
+    res.send(filterWords);
+});
+
+app.post('/filtered-words', (req: express.Request, res: express.Response) => {
+    const filteredWord = req.body.filteredWord;
+
+    if (!filteredWord) {
+        res.status(400).send('filterWord is required for a message');
+        return;
+    }
+
+    // add the token
+    const filteredWords = documentHolder.addWord(filteredWord);
+    res.status(200).send(filteredWords);
 });
 
 
