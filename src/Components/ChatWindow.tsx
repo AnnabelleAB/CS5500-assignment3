@@ -4,6 +4,7 @@ import { ChatItem } from "../Server/ChatItem";
 import "./ChatWindow.css";
 import { GoSearch } from "react-icons/go";
 import { BsChatDots } from "react-icons/bs";
+import { IoIosSend } from "react-icons/io";
 
 interface ChatWindowProps {
   // allMessages: ChatItem[];
@@ -15,8 +16,14 @@ interface ChatWindowProps {
   addFilteredWords(event: React.MouseEvent<HTMLButtonElement>): void;
 }
 
-function ChatWindow({ message, onMessageChange, sendMessage, filteredWord, onFilteredWordChange, addFilteredWords}: ChatWindowProps) {
-
+function ChatWindow({
+  message,
+  onMessageChange,
+  sendMessage,
+  filteredWord,
+  onFilteredWordChange,
+  addFilteredWords,
+}: ChatWindowProps) {
   const [displayedMessages, setDisplayedMessages] = useState<ChatItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [allMessages, setAllMessages] = useState<ChatItem[]>([]);
@@ -28,15 +35,15 @@ function ChatWindow({ message, onMessageChange, sendMessage, filteredWord, onFil
   useEffect(() => {
     const fetchNewMessages = () => {
       fetch("http://localhost:3005/all-messages")
-        .then(response => response.json())
-        .then(newMessages => {
+        .then((response) => response.json())
+        .then((newMessages) => {
           // Update the displayed messages only if there are new messages
           if (newMessages.length !== allMessages.length) {
             setAllMessages(newMessages);
             setDisplayedMessages(newMessages.slice(0, 20));
           }
         })
-        .catch(error => console.error('Error fetching new messages:', error));
+        .catch((error) => console.error("Error fetching new messages:", error));
     };
 
     const messagePollingInterval = setInterval(fetchNewMessages, 5000); // Poll every 5 seconds
@@ -49,7 +56,6 @@ function ChatWindow({ message, onMessageChange, sendMessage, filteredWord, onFil
     setDisplayedMessages([...displayedMessages]);
   };
 
-
   const loadMoreMessages = () => {
     const currentLength = displayedMessages.length;
     const moreMessages = allMessages.slice(currentLength, currentLength + 20);
@@ -59,7 +65,7 @@ function ChatWindow({ message, onMessageChange, sendMessage, filteredWord, onFil
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     if (query) {
-      const filteredMessages = allMessages.filter(msg =>
+      const filteredMessages = allMessages.filter((msg) =>
         msg.content.toLowerCase().includes(query.toLowerCase())
       );
       setDisplayedMessages(filteredMessages);
@@ -68,39 +74,53 @@ function ChatWindow({ message, onMessageChange, sendMessage, filteredWord, onFil
     }
   };
 
-  const handleAddFilteredWord = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleAddFilteredWord = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
     addFilteredWords(event);
     setDisplayedMessages([...displayedMessages]);
   };
 
-
   return (
     <div className="chat-window">
-      <h5>Chat Window <BsChatDots size={20} style={{ fontStyle: "bold" }} /></h5>
+      <h5>
+        Chat Window <BsChatDots size={20} style={{ fontStyle: "bold" }} />
+      </h5>
       <input
         type="text"
         placeholder="Search Message History..."
         value={searchQuery}
         onChange={(e) => handleSearch(e.target.value)}
+        className="search-input"
       />
       <div className="message-container">
         <MessageList messages={displayedMessages} />
       </div>
+
       <div className="input-container">
-        <input placeholder="Type a message..." value={message} onChange={onMessageChange}></input>
-        <button onClick={handleSendMessage}>Send</button>
+        <input
+          placeholder="Type a message..."
+          value={message}
+          onChange={onMessageChange}
+          className="message-input"
+        >
+        </input>
+        <button onClick={handleSendMessage} className="sendbtn">Send </button>
         {searchQuery === "" && (
-          <button onClick={loadMoreMessages}>Load More</button>
+          <button onClick={loadMoreMessages} className="sendbtn">Load More</button>
         )}
       </div>
-      <div style={{ fontSize: "14px" }}>Enter Filtered Words</div>
-      <input
-        type="text"
-        placeholder="Enter Filtered Words..."
-        value={filteredWord}
-        onChange={onFilteredWordChange}
-      />
-      <button onClick={handleAddFilteredWord}>Add</button>
+
+      <>
+        <div style={{ fontSize: "14px" }}>Enter Filtered Words</div>
+        <input
+          type="text"
+          placeholder="Enter Filtered Words..."
+          value={filteredWord}
+          onChange={onFilteredWordChange}
+        />
+        <button onClick={handleAddFilteredWord}>Add</button>
+      </>
     </div>
   );
 }
