@@ -15,27 +15,13 @@ interface SpreadSheetProps {
 }
 
 function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
-  const [formulaString, setFormulaString] = useState(
-    spreadSheetClient.getFormulaString()
-  );
-  const [resultString, setResultString] = useState(
-    spreadSheetClient.getResultString()
-  );
-  const [cells, setCells] = useState(
-    spreadSheetClient.getSheetDisplayStringsForGUI()
-  );
-  const [statusString, setStatusString] = useState(
-    spreadSheetClient.getEditStatusString()
-  );
-  const [currentCell, setCurrentCell] = useState(
-    spreadSheetClient.getWorkingCellLabel()
-  );
-  const [currentlyEditing, setCurrentlyEditing] = useState(
-    spreadSheetClient.getEditStatus()
-  );
-  const [userName, setUserName] = useState(
-    window.sessionStorage.getItem("userName") || ""
-  );
+  const [formulaString, setFormulaString] = useState(spreadSheetClient.getFormulaString());
+  const [resultString, setResultString] = useState(spreadSheetClient.getResultString());
+  const [cells, setCells] = useState(spreadSheetClient.getSheetDisplayStringsForGUI());
+  const [statusString, setStatusString] = useState(spreadSheetClient.getEditStatusString());
+  const [currentCell, setCurrentCell] = useState(spreadSheetClient.getWorkingCellLabel());
+  const [currentlyEditing, setCurrentlyEditing] = useState(spreadSheetClient.getEditStatus());
+  const [userName, setUserName] = useState(window.sessionStorage.getItem("userName") || "");
   const [message, setMessage] = useState("");
   // const [allMessages, setAllMessages] = useState<ChatItem[]>([]);
   const [needsUpdate, setNeedsUpdate] = useState(false);
@@ -60,6 +46,8 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
   //       console.error('Error fetching messages:', error);
   //     });
   // }, []); // Empty dependency array to run only on component mount
+
+
 
   function updateDisplayValues(): void {
     if (needsUpdate) {
@@ -110,9 +98,7 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
     setMessage(event.currentTarget.value);
   }
 
-  function onFilteredWordChange(
-    event: React.FormEvent<HTMLInputElement>
-  ): void {
+  function onFilteredWordChange(event: React.FormEvent<HTMLInputElement>): void {
     setFilteredWord(event.currentTarget.value);
   }
 
@@ -168,19 +154,16 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
 
   return (
     <div>
+      <div className="btnandstatus">
+        <button className="backbtn" onClick={returnToLoginPage}>
+          Back to Document List
+        </button>
+        <Status statusString={statusString} userName={userName}></Status>
+      </div>
       <table className="main">
         <tbody>
           <tr>
             <td>
-              <div className="btnandstatus">
-                <button className="backbtn" onClick={returnToLoginPage}>
-                  Back to Document List
-                </button>
-                <Status
-                  statusString={statusString}
-                  userName={userName}
-                ></Status>
-              </div>
               <Formula
                 formulaString={formulaString}
                 resultString={resultString}
