@@ -47,6 +47,7 @@ function LoginPageComponent({
             fontSize: "20px",
             borderRadius: "5px",
             border: "1px solid black",
+            textTransform:'capitalize'
           }}
           type="text"
           placeholder="Your name"
@@ -54,7 +55,8 @@ function LoginPageComponent({
           onKeyDown={(event) => {
             if (event.key === "Enter") {
               // get the text from the input
-              let userName = (event.target as HTMLInputElement).value;
+              let temp = (event.target as HTMLInputElement).value.charAt(0).toUpperCase()+ (event.target as HTMLInputElement).value.slice(1).toLowerCase()
+              let userName = temp.toString();
               window.sessionStorage.setItem("userName", userName);
               // set the user name
               setUserName(userName);

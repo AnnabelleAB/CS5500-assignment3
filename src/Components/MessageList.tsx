@@ -22,11 +22,19 @@ const MessageList: React.FC<MessageListProps> = ({ messages }) => {
   const message = messages.slice().reverse()
   return (
     <ul className="message-list">
-      {message.map((item) => 
-      <li className="message-item">
-        <label>{item.user} : </label>
-        {item.content} at {convertDate(item.timestamp)}
-      </li>)}
+       {message.map((item) => (
+        <li className="message-item">
+          <table>
+          <th className="item-username" style={{width:'100%'}}>
+            {item.user}
+          </th>
+          <th className="item-time">     {convertDate(item.timestamp)}</th>
+          </table>
+          <div className="arrowbox1-left">
+            <div className="item-content">{item.content}</div>
+          </div>
+        </li>
+      ))}
     </ul>
   );
 }
