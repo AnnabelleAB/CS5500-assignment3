@@ -47,7 +47,7 @@ function LoginPageComponent({
             fontSize: "20px",
             borderRadius: "5px",
             border: "1px solid black",
-            textTransform:'capitalize'
+            textTransform: "capitalize",
           }}
           type="text"
           placeholder="Your name"
@@ -55,7 +55,11 @@ function LoginPageComponent({
           onKeyDown={(event) => {
             if (event.key === "Enter") {
               // get the text from the input
-              let temp = (event.target as HTMLInputElement).value.charAt(0).toUpperCase()+ (event.target as HTMLInputElement).value.slice(1).toLowerCase()
+              let temp =
+                (event.target as HTMLInputElement).value
+                  .charAt(0)
+                  .toUpperCase() +
+                (event.target as HTMLInputElement).value.slice(1).toLowerCase();
               let userName = temp.toString();
               window.sessionStorage.setItem("userName", userName);
               // set the user name
@@ -105,19 +109,17 @@ function LoginPageComponent({
     // make a table with the list of sheets and a button beside each one to edit the sheet
     return (
       <>
-        <div>
-          <div className="username">
-            <table>
-              <th style={{width:'100%'}}>
-                <FaUserAstronaut /> Hello! {userName}{" "}
-              </th>
-              <th>
-                <button className="logoutbtn" onClick={() => logout()}>
-                  Logout
-                </button>
-              </th>
-            </table>
-          </div>
+        <div className="username">
+          <table>
+            <th style={{ width: "100%" }}>
+              <FaUserAstronaut /> Hello! {userName}{" "}
+            </th>
+            <th>
+              <button className="logoutbtn" onClick={() => logout()}>
+                Logout
+              </button>
+            </th>
+          </table>
         </div>
         <div>
           <table className="wholeTable">
