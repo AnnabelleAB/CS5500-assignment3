@@ -157,7 +157,7 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
       <table className="main">
         <tbody>
           <tr>
-            <td>
+            <td style={{width:'100%', paddingRight:'100px'}}>
               <div className="btnandstatus">
                 <button className="backbtn" onClick={returnToLoginPage}>
                   Back to Document List
