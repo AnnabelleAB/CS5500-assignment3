@@ -64,15 +64,13 @@ app.use((req, res, next) => {
 });
 
 //Add firestore database
+// const serviceAccount = require('../serviceAccountKey.json');
 
+// initializeApp({
+//     credential: cert(serviceAccount)
+// });
 
-const serviceAccount = require('../serviceAccountKey.json');
-
-initializeApp({
-    credential: cert(serviceAccount)
-});
-
-const db = getFirestore();
+// const db = getFirestore();
 
 const documentHolder = new DocumentHolder();
 
@@ -282,79 +280,46 @@ app.put('/document/clear/formula/:name', (req: express.Request, res: express.Res
 
 
 //20 Message api 
-app.get('/messages', (req: express.Request, res: express.Response) => {
-    const lastFetchedTimestamp = req.query.lastFetchedTimestamp;
-    let query = db.collection('messages').orderBy('timestamp', 'desc');
+// app.get('/messages', (req: express.Request, res: express.Response) => {
+//     const lastFetchedTimestamp = req.query.lastFetchedTimestamp;
+//     let query = db.collection('messages').orderBy('timestamp', 'desc');
 
-    if (lastFetchedTimestamp) {
-        query = query.startAfter(lastFetchedTimestamp);
-    }
+//     if (lastFetchedTimestamp) {
+//         query = query.startAfter(lastFetchedTimestamp);
+//     }
 
-    query.limit(20).get()
-        .then(snapshot => {
-            const messages = snapshot.docs.map(doc => doc.data());
-            res.status(200).send(messages);
-        }).catch((error) => {
-            console.error('Error retrieving messages:', error);
-            res.status(500).send('Error retrieving messages');
-        });
-});
+//     query.limit(20).get()
+//         .then(snapshot => {
+//             const messages = snapshot.docs.map(doc => doc.data());
+//             res.status(200).send(messages);
+//         }).catch((error) => {
+//             console.error('Error retrieving messages:', error);
+//             res.status(500).send('Error retrieving messages');
+//         });
+// });
 
 app.get('/all-messages', (req: express.Request, res: express.Response) => {
-    let filteredWords = documentHolder.getFilterWords();
-    let query = null;
-    if (filteredWords.length == 0) {
-        query = db.collection('messages')
-        .orderBy('timestamp', 'desc');
-    } else {
-        query = db.collection('messages')
-        .orderBy('content')
-        .where('content', 'not-in', filteredWords)
-        .orderBy('timestamp', 'desc');
-    }
-    query.get()
-        .then(snapshot => {
-            const messages = snapshot.docs.map(doc => doc.data());
+    const messages = documentHolder.getMessages();
+    const filteredWords = documentHolder.getFilterWords();
 
-            //second filter case insensitive
-            let filteredResult: FirebaseFirestore.DocumentData[] = [];
-            messages.forEach((message) => { 
-                if (!filteredWords.some(word => message.content.toLowerCase().includes(word))) {
-                    filteredResult.push(message);
-                }
-            })
-            res.status(200).send(filteredResult);
-        })
-        .catch(error => {
-            console.error('Error retrieving all messages:', error);
-            res.status(500).send('Error retrieving messages');
-        });
-});
+    const filteredMessage:ChatItem[]= [];
 
-
-app.get('/messages_by_page', (req, res) => {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 20;
-    const offset = (page - 1) * limit;
-
-    db.collection('messages')
-        .orderBy('timestamp', 'desc')
-        .offset(offset)
-        .limit(limit)
-        .get()
-        .then(snapshot => {
-            const messages = snapshot.docs.map(doc => doc.data());
-            if (messages.length <= 0) {
-                res.status(404).send('No messages found');
-                return;
+    messages.forEach((message) => { 
+        if (!filteredWords.some(word => message.content.toLowerCase().split(" ").includes(word))) {
+                filteredMessage.push(message);
             }
-            res.status(200).send(messages);
-        })
-        .catch(error => {
-            console.error('Error retrieving messages:', error);
-            res.status(500).send('Error retrieving messages');
-        });
+    })
+    
+    filteredMessage.sort((a, b) => {
+        const timestampA = typeof a.timestamp === 'number' ? a.timestamp : (a.timestamp._seconds * 1000 + a.timestamp._nanoseconds / 1000000);
+        const timestampB = typeof b.timestamp === 'number' ? b.timestamp : (b.timestamp._seconds * 1000 + b.timestamp._nanoseconds / 1000000);
+
+        return timestampB - timestampA;
+    });
+
+    res.status(200).send(filteredMessage);
 });
+
 
 app.post('/messages', (req: express.Request, res: express.Response) => {
     const userName = req.body.userName;
@@ -369,18 +334,15 @@ app.post('/messages', (req: express.Request, res: express.Response) => {
         return;
     }
 
-    db.collection('messages').add({
-        content: content,
+    const newMessage: ChatItem = {
         user: userName,
+        content: content,
         timestamp: Date.now()
-    }).then(
-        result => {
-            res.status(200).send(result.id);
-        }
-    ).catch((error) => {
-        console.error('Error adding message:', error);
-        res.status(500).send('Error adding message');
-    })
+    }
+
+    // add message to messages file
+    const messages = documentHolder.addMessage(newMessage);
+    res.status(200).send(messages);
 });
 
 app.get('/filtered-words', (req: express.Request, res: express.Response) => {
@@ -396,7 +358,7 @@ app.post('/filtered-words', (req: express.Request, res: express.Response) => {
         return;
     }
 
-    // add the token
+    // add the filtered word
     const filteredWords = documentHolder.addWord(filteredWord);
     res.status(200).send(filteredWords);
 });

@@ -46,7 +46,7 @@ function ChatWindow({
         .catch((error) => console.error("Error fetching new messages:", error));
     };
 
-    const messagePollingInterval = setInterval(fetchNewMessages, 5000); // Poll every 5 seconds
+    const messagePollingInterval = setInterval(fetchNewMessages, 50); // Poll every 5 seconds
 
     // Clean up the interval when the component unmounts
     return () => clearInterval(messagePollingInterval);

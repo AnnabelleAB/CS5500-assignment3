@@ -422,26 +422,6 @@ class SpreadSheetClient {
         });
     }
 
-    public getMessageByPage(page: number, limit: number = 20): Promise<ChatItem[]> {
-        const fetchURL = `${this._baseURL}/messages_by_page?page=${page}&limit=${limit}`;
-        return fetch(fetchURL)
-            .then(response => {
-                if (!response.ok) {
-                    if (response.status === 404) {
-                        alert('No more messages found');
-                        return [];
-                    }
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json() as Promise<ChatItem[]>;
-            })
-            .catch(error => {
-                console.error('Error fetching messages:', error);
-                throw error;
-            });
-    }
-
-
     public addFilteredWord(filteredWord: string): void{
         const fetchURL = `${this._baseURL}/filtered-words`;
         fetch(fetchURL, {
@@ -454,6 +434,17 @@ class SpreadSheetClient {
         .then(response => {
            console.log(response.status);
         });
+    }
+
+    public getFilteredWords() : Promise<string[]> {
+        const fetchURL = `${this._baseURL}/filtered-words`;
+        return fetch(fetchURL)
+            .then(response => {
+                return response.json() as Promise<string[]>;
+            }). catch(error => {
+                console.error('Error fetching filtered words:', error);
+                throw error;
+            });
     }
 
     private _getEditorString(contributingUsers: UserEditing[], cellLabel: string): string {

@@ -23,55 +23,36 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
   const [currentlyEditing, setCurrentlyEditing] = useState(spreadSheetClient.getEditStatus());
   const [userName, setUserName] = useState(window.sessionStorage.getItem("userName") || "");
   const [message, setMessage] = useState("");
-  // const [allMessages, setAllMessages] = useState<ChatItem[]>([]);
-  const [needsUpdate, setNeedsUpdate] = useState(false);
   const [filteredWord, setFilteredWord] = useState("");
-
-  // fetch('/all-messages')
-  //   .then(response => response.json())
-  //   .then(data => {
-  //     setAllMessages(data);
-  //   })
-  //   .catch(error => {
-  //     console.error('Error fetching messages:', error);
-  //   });
-  // useEffect(() => {
-  //   const fetchURL = "http://localhost:3005/all-messages";
-  //   fetch(fetchURL)
-  //     .then(response => response.json())
-  //     .then(data => {
-  //       setAllMessages(data);
-  //     })
-  //     .catch(error => {
-  //       console.error('Error fetching messages:', error);
-  //     });
-  // }, []); // Empty dependency array to run only on component mount
-
-
+  const [filteredWords, setFilteredWords] = useState<string[]>([]);
 
   function updateDisplayValues(): void {
-    if (needsUpdate) {
-      spreadSheetClient.userName = userName;
-      spreadSheetClient.documentName = documentName;
-      setFormulaString(spreadSheetClient.getFormulaString());
-      setResultString(spreadSheetClient.getResultString());
-      setStatusString(spreadSheetClient.getEditStatusString());
-      setCells(spreadSheetClient.getSheetDisplayStringsForGUI());
-      setCurrentCell(spreadSheetClient.getWorkingCellLabel());
-      setCurrentlyEditing(spreadSheetClient.getEditStatus());
-      const errorOccurred = spreadSheetClient.getErrorOccurred();
-      if (errorOccurred !== "") {
-        alert(errorOccurred);
-      }
-      setNeedsUpdate(false);
+    spreadSheetClient.userName = userName;
+    spreadSheetClient.documentName = documentName;
+    setFormulaString(spreadSheetClient.getFormulaString());
+    setResultString(spreadSheetClient.getResultString());
+    setStatusString(spreadSheetClient.getEditStatusString());
+    setCells(spreadSheetClient.getSheetDisplayStringsForGUI());
+    setCurrentCell(spreadSheetClient.getWorkingCellLabel());
+    setCurrentlyEditing(spreadSheetClient.getEditStatus());
+   spreadSheetClient.getFilteredWords().then(words => {
+     setFilteredWords(words);
+    });
+    const errorOccurred = spreadSheetClient.getErrorOccurred();
+    if (errorOccurred !== "") {
+      alert(errorOccurred)
+      alert(errorOccurred);
     }
+
   }
 
   useEffect(() => {
-    if (needsUpdate) {
+    const interval = setInterval(() => {
       updateDisplayValues();
-    }
-  }, [needsUpdate]);
+    }, 50);
+    return () => clearInterval(interval);
+  });
+
 
   function returnToLoginPage() {
     const href = window.location.href;
@@ -83,15 +64,17 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
   }
 
   function sendMessage(event: React.MouseEvent<HTMLButtonElement>): void {
-    spreadSheetClient.addMessage(userName, message);
-    setMessage("");
-    setNeedsUpdate(true);
+    if (filteredWords.some(word => message.toLowerCase().split(" ").includes(word))) {
+      alert("Your message contains inappropriated words! Please remove and try again.")
+    }else {
+      spreadSheetClient.addMessage(userName, message);
+      setMessage("");
+    }
   }
 
   function addFilteredWords(event: React.MouseEvent<HTMLButtonElement>): void {
     spreadSheetClient.addFilteredWord(filteredWord);
     setFilteredWord("");
-    setNeedsUpdate(true);
   }
 
   function onMessageChange(event: React.FormEvent<HTMLInputElement>): void {
@@ -118,7 +101,6 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
         break;
       // Add other cases as needed
     }
-    setNeedsUpdate(true);
   }
 
   function onButtonClick(event: React.MouseEvent<HTMLButtonElement>): void {
@@ -128,7 +110,6 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
     const text = event.currentTarget.textContent || "";
     spreadSheetClient.setEditStatus(true);
     spreadSheetClient.addToken(text);
-    setNeedsUpdate(true);
   }
 
   function onCellClick(event: React.MouseEvent<HTMLButtonElement>): void {
@@ -141,7 +122,6 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
     } else {
       spreadSheetClient.requestViewByLabel(cellLabel);
     }
-    setNeedsUpdate(true);
   }
 
   function checkUserName(): boolean {
@@ -182,7 +162,6 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
             </td>
             <td>
               <ChatWindow
-                // allMessages={allMessages}
                 message={message}
                 onMessageChange={onMessageChange}
                 sendMessage={sendMessage}
