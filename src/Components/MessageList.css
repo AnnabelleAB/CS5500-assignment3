@@ -13,7 +13,7 @@
 }
 
 .item-username {
-    font-size: 18px;
+    font-size: 16px;
     color: #ffffff;
     margin-right: 5px;
 }
@@ -23,7 +23,7 @@
     color: #a2a1a1;
 }
 .item-content {
-    font-size: 18px;
+    font-size: 14px;
     color: #ffffff;
     min-width: 20px;
     max-width: 100%;
