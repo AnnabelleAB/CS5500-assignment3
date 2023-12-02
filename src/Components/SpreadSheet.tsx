@@ -7,7 +7,6 @@ import SheetHolder from "./SheetHolder";
 import "./SpreadSheet.css";
 import { ButtonNames } from "../Engine/GlobalDefinitions";
 import ChatWindow from "./ChatWindow";
-import { ChatItem } from "../Server/ChatItem";
 
 interface SpreadSheetProps {
   documentName: string;
