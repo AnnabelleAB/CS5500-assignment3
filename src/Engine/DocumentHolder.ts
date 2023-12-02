@@ -25,6 +25,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { SpreadSheetController } from "./SpreadSheetController";
+import { ChatItem } from '../Server/ChatItem';
 
 
 export class DocumentHolder {
@@ -34,6 +35,8 @@ export class DocumentHolder {
     private _documentFolder: string;
     private _filterWordsPath: string;
     private _filterWords: string[];
+    private _messagesPath: string;
+    private _messages: ChatItem[];
 
     constructor(documentDirectory: string = 'documents') {
         this._documents = new Map<string, SpreadSheetController>();
@@ -46,6 +49,9 @@ export class DocumentHolder {
         this._filterWordsPath = path.join(rootPath, 'filterWords.txt');
         this._filterWords = [];
         this._loadFilterWords();
+        this._messagesPath = path.join(rootPath, 'messages.json');
+        this._messages = [];
+        this._loadMessages();
     }
 
     private _initializeDocumentDirectory(): void {
@@ -94,6 +100,21 @@ export class DocumentHolder {
         } catch (error) {
             if (error && (error as NodeJS.ErrnoException).code === 'ENOENT') {
                 fs.writeFileSync(this._filterWordsPath, '', 'utf8');
+            } else {
+                // Handle other exceptions
+                console.error(`Error: ${(error as NodeJS.ErrnoException).message}`);
+            }
+            return;
+        }
+    }
+
+    private _loadMessages(): void {
+        try {
+            const data = fs.readFileSync(this._messagesPath, 'utf8');
+            this._messages = JSON.parse(data);
+        } catch (error) {
+            if (error && (error as NodeJS.ErrnoException).code === 'ENOENT') {
+                fs.writeFileSync(this._messagesPath, '', 'utf8');
             } else {
                 // Handle other exceptions
                 console.error(`Error: ${(error as NodeJS.ErrnoException).message}`);
@@ -256,6 +277,10 @@ export class DocumentHolder {
         return this._filterWords;
     }
 
+    public getMessages(): ChatItem[] {
+        return this._messages;
+    }
+
     public addWord(filterWord: string): any{
         this._filterWords.push(filterWord.toLowerCase());
         var newFilterWord = this._filterWords.join(',');
@@ -263,5 +288,10 @@ export class DocumentHolder {
         return this._filterWords;
     }
 
+    public addMessage(newMessage: ChatItem): any{
+        this._messages.push(newMessage);
+        fs.writeFileSync(this._messagesPath, JSON.stringify(this._messages), 'utf8');
+        return this._messages;
+    }
 }
 
