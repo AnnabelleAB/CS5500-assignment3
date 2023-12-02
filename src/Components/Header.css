@@ -10,5 +10,13 @@
 .headerbc{
 background-color: rgb(70, 66, 66);
   padding:  10px;
+  position: fixed;
+  width: '100%';
+  padding-right: 1378px;
+  display: flex;
+  transition: 0.5s;
+  z-index: 1000;
   
 }
+
+
