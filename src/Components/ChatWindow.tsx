@@ -111,7 +111,7 @@ function ChatWindow({
         )}
       </div>
 
-      <>
+      {/* <>
         <div style={{ fontSize: "14px" }}>Enter Filtered Words</div>
         <input
           type="text"
@@ -120,7 +120,7 @@ function ChatWindow({
           onChange={onFilteredWordChange}
         />
         <button onClick={handleAddFilteredWord}>Add</button>
-      </>
+      </> */}
     </div>
   );
 }

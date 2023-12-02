@@ -15,13 +15,27 @@ interface SpreadSheetProps {
 }
 
 function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
-  const [formulaString, setFormulaString] = useState(spreadSheetClient.getFormulaString());
-  const [resultString, setResultString] = useState(spreadSheetClient.getResultString());
-  const [cells, setCells] = useState(spreadSheetClient.getSheetDisplayStringsForGUI());
-  const [statusString, setStatusString] = useState(spreadSheetClient.getEditStatusString());
-  const [currentCell, setCurrentCell] = useState(spreadSheetClient.getWorkingCellLabel());
-  const [currentlyEditing, setCurrentlyEditing] = useState(spreadSheetClient.getEditStatus());
-  const [userName, setUserName] = useState(window.sessionStorage.getItem("userName") || "");
+  const [formulaString, setFormulaString] = useState(
+    spreadSheetClient.getFormulaString()
+  );
+  const [resultString, setResultString] = useState(
+    spreadSheetClient.getResultString()
+  );
+  const [cells, setCells] = useState(
+    spreadSheetClient.getSheetDisplayStringsForGUI()
+  );
+  const [statusString, setStatusString] = useState(
+    spreadSheetClient.getEditStatusString()
+  );
+  const [currentCell, setCurrentCell] = useState(
+    spreadSheetClient.getWorkingCellLabel()
+  );
+  const [currentlyEditing, setCurrentlyEditing] = useState(
+    spreadSheetClient.getEditStatus()
+  );
+  const [userName, setUserName] = useState(
+    window.sessionStorage.getItem("userName") || ""
+  );
   const [message, setMessage] = useState("");
   const [filteredWord, setFilteredWord] = useState("");
   const [filteredWords, setFilteredWords] = useState<string[]>([]);
@@ -35,15 +49,14 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
     setCells(spreadSheetClient.getSheetDisplayStringsForGUI());
     setCurrentCell(spreadSheetClient.getWorkingCellLabel());
     setCurrentlyEditing(spreadSheetClient.getEditStatus());
-   spreadSheetClient.getFilteredWords().then(words => {
-     setFilteredWords(words);
+    spreadSheetClient.getFilteredWords().then((words) => {
+      setFilteredWords(words);
     });
     const errorOccurred = spreadSheetClient.getErrorOccurred();
     if (errorOccurred !== "") {
-      alert(errorOccurred)
+      alert(errorOccurred);
       alert(errorOccurred);
     }
-
   }
 
   useEffect(() => {
@@ -52,7 +65,6 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
     }, 50);
     return () => clearInterval(interval);
   });
-
 
   function returnToLoginPage() {
     const href = window.location.href;
@@ -64,9 +76,15 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
   }
 
   function sendMessage(event: React.MouseEvent<HTMLButtonElement>): void {
-    if (filteredWords.some(word => message.toLowerCase().split(" ").includes(word))) {
-      alert("Your message contains inappropriated words! Please remove and try again.")
-    }else {
+    if (
+      filteredWords.some((word) =>
+        message.toLowerCase().split(" ").includes(word)
+      )
+    ) {
+      alert(
+        "Your message contains inappropriated words! Please remove and try again."
+      );
+    } else {
       spreadSheetClient.addMessage(userName, message);
       setMessage("");
     }
@@ -81,7 +99,9 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
     setMessage(event.currentTarget.value);
   }
 
-  function onFilteredWordChange(event: React.FormEvent<HTMLInputElement>): void {
+  function onFilteredWordChange(
+    event: React.FormEvent<HTMLInputElement>
+  ): void {
     setFilteredWord(event.currentTarget.value);
   }
 
@@ -134,16 +154,19 @@ function SpreadSheet({ documentName, spreadSheetClient }: SpreadSheetProps) {
 
   return (
     <div>
-      <div className="btnandstatus">
-        <button className="backbtn" onClick={returnToLoginPage}>
-          Back to Document List
-        </button>
-        <Status statusString={statusString} userName={userName}></Status>
-      </div>
       <table className="main">
         <tbody>
           <tr>
-            <td>
+            <td style={{width:'100%', paddingRight:'100px'}}>
+              <div className="btnandstatus">
+                <button className="backbtn" onClick={returnToLoginPage}>
+                  Back to Document List
+                </button>
+                <Status
+                  statusString={statusString}
+                  userName={userName}
+                ></Status>
+              </div>
               <Formula
                 formulaString={formulaString}
                 resultString={resultString}

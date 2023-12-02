@@ -11,3 +11,48 @@
     font-size: 16px;
  
 }
+
+.item-username {
+    font-size: 16px;
+    color: #ffffff;
+    margin-right: 5px;
+}
+
+.item-time {
+    font-size: 10px;
+    color: #a2a1a1;
+}
+.item-content {
+    font-size: 14px;
+    color: #ffffff;
+    min-width: 20px;
+    max-width: 100%;
+}
+
+.arrowbox1-left {
+    position: relative;
+    display: inline-block;
+    margin: 0em 0 0.5em 0px;
+    padding: 10px 5px;
+    min-width: 20px;
+    max-width: 100%;
+    color: #e9e1e1;
+    font-size: 16px;
+    background: rgb(97, 97, 208);
+    border-radius: 5px;
+  }
+
+  /* .arrowbox1-left:before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: -30px;
+    margin-top: -15px;
+    border: 15px solid transparent;
+    border-right: 15px solid #e0f2ff;
+  } */
+
+  .arrowbox1-left p {
+    margin: 0;
+    padding: 0;
+  }
