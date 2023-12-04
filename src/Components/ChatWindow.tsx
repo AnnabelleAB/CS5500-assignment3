@@ -34,7 +34,8 @@ function ChatWindow({
 
   useEffect(() => {
     const fetchNewMessages = () => {
-      fetch("http://localhost:3005/all-messages")
+      // http://localhost:3005/all-messages 
+      fetch("https://cs5500-assignment3-xn1z.onrender.com/all-messages")
         .then((response) => response.json())
         .then((newMessages) => {
           // Update the displayed messages only if there are new messages
