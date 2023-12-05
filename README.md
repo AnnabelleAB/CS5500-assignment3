@@ -6,6 +6,30 @@
 - Write up three of these bugs in a user story format [ListOfBugs](https://github.com/AnnabelleAB/assignment2-release/blob/assignment2-release/ListOfBugs.md)
 - A list of the tests we implemented for the bug we've fixed [test file name](test file link)
 
+# Running the Demo
+
+## Local
+- Run the project's demo with the following command:
+`npm start`
+`npm start-server`
+
+- Update the URL to localhost for local development
+Open the chatWindow.tsx file.
+Locate line 38, which contains the API URL:
+`fetch("https://cs5500-assignment3-xn1z.onrender.com/all-messages")`
+Update the URL to http://localhost:3005/all-messages for local development:
+`fetch("http://localhost:3005/all-messages")`
+
+- Access the demo: http://localhost:3000
+
+
+## Render
+- Run the project's demo with the following command:
+`npm start`
+`npm start-server`
+
+- Access the demo: https://cs5500-assignment3-frontend.onrender.com
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
